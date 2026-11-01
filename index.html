@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#002868">
+<title>Mapa de campo — Ovitrampas · Ponta Porã/MS</title>
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="preload" href="assets/fonts/archivo-800.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/tokens.css?v=28e01fbf">
+<link rel="stylesheet" href="assets/css/base.css?v=28e01fbf">
+<link rel="stylesheet" href="assets/vendor/leaflet.css?v=28e01fbf">
+<link rel="stylesheet" href="assets/css/app.css?v=28e01fbf">
+</head>
+<body data-pagina="app">
+<div id="splash" role="status"><div data-splash-txt>Carregando dados…</div></div>
+
+<div id="app">
+  <aside id="side" aria-label="Controles do mapa">
+    <header class="sidehead">
+      <div class="brand">
+        <img class="brand-logo" src="assets/img/logo-2x.png?v=28e01fbf" alt="Prefeitura Municipal de Ponta Porã" width="121" height="46">
+        <div class="brand-txt"><h1>Mapa de campo</h1><p>Controle de ovitrampas<br>Vigilância em Saúde / Endemias</p></div>
+      </div>
+      <button id="closeMenu" class="btn btn-sm primary" type="button"><i data-ico="map"></i>Ver mapa</button>
+      <button id="hideMenu" class="btn btn-sm" type="button" title="Esconder o menu para ver o mapa maior"><i data-ico="panel"></i>Esconder</button>
+    </header>
+
+    <details class="sec" open>
+      <summary><i data-ico="users"></i><span>Agentes e equipes</span></summary>
+      <div class="secbody">
+      <input id="agBusca" type="search" placeholder="Buscar agente, área ou nº…" aria-label="Buscar agente" autocomplete="off">
+      <label for="agOrd" class="field-label">Organizar por</label>
+      <select id="agOrd" aria-label="Organizar agentes por">
+        <option value="equipe" selected>Equipe (e nome dentro da equipe)</option>
+        <option value="nome">Nome do agente (A–Z)</option>
+        <option value="zona">Nº da zona</option>
+      </select>
+      <div id="agEq" role="group" aria-label="Filtrar por equipe"></div>
+      <p class="hint" id="bInfo"></p>
+      <div id="agents" aria-label="Agentes"></div>
+      <p class="hint">Toque num agente para ver as ovitrampas dele no mapa. Nome, área, zona e equipe entram sozinhos no print e no relatório.</p>
+      <div class="subsec first">
+        <h3>Mapa de campo</h3>
+        <button class="btn primary big" id="gen" type="button">SELECIONE UM AGENTE ACIMA</button>
+        <p class="hint">Abre o relatório do agente escolhido (mapa, endereços, ordem de visita e QR) para salvar em PNG ou PDF, imprimir ou enviar. Também vale para pontos escolhidos em “Buscar e selecionar”.</p>
+      </div>
+      <div class="subsec">
+        <h3>Gerar mapas dos agentes listados</h3>
+        <label class="switch"><input type="checkbox" id="bPng" checked> PNG de cada agente</label>
+        <label class="switch"><input type="checkbox" id="bPdf" checked> PDF de cada agente</label>
+        <label class="switch"><input type="checkbox" id="bAll" checked> PDF único por equipe (1 página por agente)</label>
+        <button class="btn primary big" id="bGo" type="button">GERAR MAPAS EM LOTE</button>
+        <p class="hint" id="bResumo"></p>
+        <p class="hint">Gera para os agentes que estão na lista acima (use os botões de equipe ou a busca para escolher). O .zip vem em pastas por equipe.</p>
+      </div>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary><i data-ico="search"></i><span>Buscar e selecionar</span></summary>
+      <div class="secbody">
+      <div class="search">
+        <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Pesquisar nº, rua ou endereço" aria-label="Pesquisar ovitrampa">
+        <div id="sres" role="listbox"></div>
+      </div>
+      <div class="chips" id="chips">
+        <button class="chip" data-f="1-50" aria-pressed="false">1–50</button>
+        <button class="chip" data-f="51-100" aria-pressed="false">51–100</button>
+        <button class="chip" data-f="101-150" aria-pressed="false">101–150</button>
+        <button class="chip" data-f="151-200" aria-pressed="false">151–200</button>
+        <button class="chip" data-f="201-242" aria-pressed="false">201–242</button>
+        <button class="chip" data-f="all" aria-pressed="true">Todos</button>
+      </div>
+      <div class="row"><button class="btn" id="selFilter" type="button">Selecionar todos desta faixa</button></div>
+      <label for="ids" class="field-label">Ou digite os números (vírgula e traço)</label>
+      <textarea id="ids" placeholder="Ex.: 101-110, 115, 120, 133"></textarea>
+      <div class="row">
+        <button class="btn primary" id="apply" type="button">Mostrar só estas</button>
+        <button class="btn ghost" id="clear" type="button">Limpar seleção</button>
+      </div>
+      <label class="switch"><input type="checkbox" id="fieldMode"> Esconder as demais ovitrampas</label>
+      <div class="count"><div><b id="cSel">0</b> selecionadas</div><div><b id="cVis">242</b> no mapa</div></div>
+      <details class="subd">
+        <summary>Nome do agente e equipe (preenchimento manual)</summary>
+        <input id="agNome" type="text" placeholder="Ex.: Maria da Silva" autocomplete="off" aria-label="Nome do agente">
+        <input id="agEquipe" type="text" placeholder="Equipe (opcional)" autocomplete="off" aria-label="Equipe">
+        <p class="hint">Só use se a seleção não for de um agente da lista. Quando você escolhe um agente, tudo entra sozinho.</p>
+      </details>
+      <p class="hint">Escolhidos os pontos, use <b>Gerar mapa de campo</b> em “Agentes e equipes”. Também dá para selecionar tocando no número e usando o botão “Selecionar” do balão.</p>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary><i data-ico="layers"></i><span>Camadas do mapa</span></summary>
+      <div class="secbody">
+      <div class="subsec first">
+        <h3>Grid de quadrículas</h3>
+        <label class="switch"><input type="checkbox" id="gOn"> Mostrar grid no mapa</label>
+        <label class="switch"><input type="checkbox" id="gPrint"> Incluir grid no print e no relatório</label>
+        <details class="subd">
+          <summary>Tamanho e início do grid</summary>
+          <div class="row">
+            <label for="gSize">Quadrícula (m)</label>
+            <input id="gSize" type="number" min="50" max="5000" step="50" value="400">
+          </div>
+          <label for="gModo" class="field-label">Onde começa o grid</label>
+          <select id="gModo" aria-label="Onde começa o grid">
+            <option value="auto" selected>Automático — melhor centralização</option>
+            <option value="centro">Centralizar uma ovitrampa específica</option>
+            <option value="manual">Ponto de partida manual (canto noroeste)</option>
+          </select>
+          <div id="gCentro"><label for="gCid">Ovitrampa nº</label><input id="gCid" type="number" min="1" max="242" value="1"></div>
+          <div id="gManual">
+            <input id="gLat" type="text" inputmode="decimal" placeholder="Latitude do início (A1)" aria-label="Latitude do início">
+            <input id="gLon" type="text" inputmode="decimal" placeholder="Longitude do início (A1)" aria-label="Longitude do início">
+          </div>
+          <div class="row"><button class="btn" id="gPick" type="button"><i data-ico="pin"></i>Marcar o início no mapa</button></div>
+        </details>
+        <p class="hint" id="gInfo"></p>
+        <div class="row">
+          <button class="btn" id="gAnalise" type="button">Análise do grid</button>
+          <button class="btn" id="gKml" type="button">Exportar KML</button>
+        </div>
+        <p class="hint">A quadrícula “F12” é igual em qualquer mapa. A cruz “+” marca o centro: instale a ovitrampa o mais perto possível dela. O início (A1) é o canto noroeste.</p>
+      </div>
+      <div class="subsec">
+        <h3>Contorno por nº de ovos</h3>
+        <label class="switch"><input type="checkbox" id="ovOn"> Mostrar contorno colorido no mapa</label>
+        <label class="switch"><input type="checkbox" id="ovPrint"> Incluir no print e no relatório</label>
+        <p class="hint">Desmarcado = visual padrão, sem cores. 🟦 0 · 🟩 1–20 · 🟨 21–50 · 🟧 51–100 · 🟥 101+ · 🟪 sem informação.</p>
+      </div>
+      <div class="subsec">
+        <h3>Rota sugerida</h3>
+        <label class="switch"><input type="checkbox" id="rotaMapa"> Mostrar rota no mapa e no print</label>
+        <label class="switch"><input type="checkbox" id="rotaRel" checked> Relatório: ordem de visita + QR da rota</label>
+        <p class="hint">Calcula o menor caminho entre as ovitrampas selecionadas. O QR abre a rota no Google Maps, a partir da localização do celular.</p>
+      </div>
+      <div class="subsec">
+        <h3>Agrupar por proximidade</h3>
+        <div class="row">
+          <label for="gsize">Pontos por mapa</label>
+          <input id="gsize" type="number" min="5" max="60" value="20">
+          <button class="btn" id="group" type="button">Agrupar</button>
+          <button class="btn ghost" id="ungroup" type="button">Remover cores</button>
+        </div>
+        <div id="groups"></div>
+        <p class="hint">Agrupa os pontos visíveis por vizinhança. Toque num grupo para selecioná-lo.</p>
+      </div>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary><i data-ico="chart"></i><span>Indicadores</span></summary>
+      <div class="secbody">
+      <div id="kpiResumo" class="kpis"></div>
+      <div class="row">
+        <button class="btn primary" id="indAbrir" type="button">Abrir painel completo</button>
+        <button class="btn" id="resGer" type="button">Resumo gerencial (PDF)</button>
+      </div>
+      <div class="row"><a class="btn" id="abrirGestao" href="gestao.html" target="_blank" rel="noopener"><i data-ico="chart"></i>Abrir a página da gestão (online)</a></div>
+      <p class="hint">IPO = % de ovitrampas positivas (com ao menos 1 ovo) entre as que têm contagem. IDO = média de ovos por ovitrampa positiva (IDV = média de ovos por ovitrampa).</p>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary><i data-ico="printer"></i><span>Print e arquivos</span></summary>
+      <div class="secbody">
+      <label for="fundo" class="field-label">Mapa de fundo do print</label>
+      <select id="fundo" aria-label="Mapa de fundo do print">
+        <option value="esri" selected>Igual ao da tela (Esri) — recomendado</option>
+        <option value="vetor">Vetorial OpenStreetMap (nomes grandes, precisa de internet)</option>
+      </select>
+      <label for="qual" class="field-label">Nitidez</label>
+      <select id="qual" aria-label="Nitidez do print">
+        <option value="2">Normal (2×) — arquivo leve</option>
+        <option value="3" selected>Alta (3×) — recomendado</option>
+        <option value="4">Máxima (4×) — arquivo grande</option>
+      </select>
+      <div class="row"><button class="btn" id="pasta" type="button"><i data-ico="folder"></i>Escolher pasta para salvar</button></div>
+      <p class="hint" id="pastaNome">Sem escolher, o navegador salva na pasta Downloads (Transferências). No celular: app Arquivos › Downloads.</p>
+      <div class="subsec">
+        <h3>Uso sem internet</h3>
+        <p class="hint" id="offStatus"></p>
+        <select id="offEscopo" aria-label="Área para guardar">
+          <option value="area">Área selecionada/visível (zoom 14–18)</option>
+          <option value="cidade">Cidade inteira (zoom 12–16)</option>
+        </select>
+        <select id="offCamada" aria-label="Camada para guardar">
+          <option value="ruas">Mapa de ruas</option>
+          <option value="sat">Satélite</option>
+          <option value="ambos">Ruas e satélite</option>
+        </select>
+        <div class="row">
+          <button class="btn primary" id="offBaixar" type="button">Guardar mapa no aparelho</button>
+          <button class="btn ghost" id="offLimpar" type="button">Limpar</button>
+        </div>
+        <div class="bar" id="offBarW" style="display:none;margin-top:8px"><i id="offBar"></i></div>
+        <p class="hint" id="offProg"></p>
+        <p class="hint">Tudo que você já viu no mapa fica guardado automaticamente. Guarde a área do agente antes de sair, com internet. O mapa vetorial (OpenStreetMap) não funciona offline.</p>
+      </div>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary><i data-ico="database"></i><span>Dados e conferência</span></summary>
+      <div class="secbody">
+      <p class="hint" id="dadosInfo"></p>
+      <div class="row">
+        <button class="btn primary" id="impAbrir" type="button">Importar planilha ou backup</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="expCsv" type="button">Exportar base (CSV)</button>
+        <button class="btn" id="expJson" type="button">Backup (JSON)</button>
+      </div>
+      <div class="row"><button class="btn" id="pubAbrir" type="button">Publicar dados para a gestão</button></div>
+      <div class="row"><button class="btn ghost" id="resetBase" type="button">Voltar à base original</button></div>
+      <div class="subsec">
+        <h3>Conferência das coordenadas</h3>
+        <div class="valsum" id="valsum"></div>
+        <p class="hint" id="valnote"></p>
+        <div class="row"><button class="btn" id="openVal" type="button">Ver lista para conferência</button></div>
+      </div>
+      </div>
+    </details>
+  
+</aside>
+
+  <main id="mapwrap">
+    <button id="menuBtn" type="button"><i data-ico="menu"></i>Menu</button>
+    <div id="map" role="application" aria-label="Mapa das ovitrampas"></div>
+    <button id="shotBtn" type="button"><i data-ico="camera"></i><span>Print do mapa</span></button>
+  </main>
+</div>
+
+<div class="overlay" id="val" role="dialog" aria-modal="true" aria-labelledby="valT">
+  <div class="modal">
+    <h2 id="valT">Conferência das coordenadas</h2>
+    <p class="hint" id="valInfo"></p>
+    <div class="vtools">
+      <label for="vlvl">Mostrar</label>
+      <select id="vlvl"><option value="">Todos os alertas</option><option value="erro">Só erros</option><option value="atenção">Só atenção</option><option value="info">Só informativos</option></select>
+      <button class="btn" id="csv" type="button">Baixar lista (CSV)</button>
+      <button class="btn" id="json" type="button">Exportar base (JSON)</button>
+      <button class="btn primary push" id="vclose" type="button" >Fechar</button>
+    </div>
+    <div class="tw"><table><thead><tr><th>ID</th><th>Nível</th><th>Tipo</th><th>Descrição</th><th>Coordenadas</th></tr></thead><tbody id="vbody"></tbody></table></div>
+    <h3 class="h-sub">Registro de correções</h3>
+    <p class="hint" id="corrInfo"></p>
+  </div>
+</div>
+
+<div id="sheet" aria-label="Mapa para campo">
+  <div id="sheetbar">
+    <button class="btn" id="sBack" type="button"><i data-ico="back"></i>Voltar</button>
+    <button class="btn primary" id="sPng" type="button">Salvar PNG</button>
+    <button class="btn primary" id="sPdf" type="button">Salvar PDF</button>
+    <button class="btn" id="sPrint" type="button"><i data-ico="printer"></i>Imprimir</button>
+    <button class="btn" id="sShare" type="button" style="display:none">Compartilhar imagem</button>
+    <button class="btn" id="sWa" type="button">WhatsApp (texto + links)</button>
+    <span class="st" id="sStatus"></span>
+  </div>
+  <div id="sheetPage">
+    <div id="sheetLoad">Gerando relatório…</div>
+    <img id="sheetImg" alt="Relatório de campo" style="display:none">
+  </div>
+</div>
+
+<div id="shotDlg" role="dialog" aria-modal="true" aria-labelledby="shotT">
+  <div class="box">
+    <h3 id="shotT">Print pronto</h3>
+    <div class="pv"><img id="shotImg" alt="Prévia do mapa"></div>
+    <div class="inf" id="shotInf"></div>
+    <div class="acts">
+      <button class="btn primary" id="shotPng" type="button">Salvar PNG</button>
+      <button class="btn primary" id="shotPdf" type="button">Salvar PDF</button>
+      <button class="btn" id="shotShare" type="button" style="display:none">Compartilhar</button>
+      <button class="btn ghost" id="shotClose" type="button">Fechar</button>
+    </div>
+  </div>
+</div>
+<div id="batchDlg" role="dialog" aria-modal="true" aria-labelledby="batchT">
+  <div class="box">
+    <h3 id="batchT">Gerando…</h3>
+    <div class="bar"><i id="bBar"></i></div>
+    <div class="inf" id="bTxt"></div>
+    <div class="acts"><button class="btn" id="bCancel" type="button">Cancelar</button><button class="btn primary" id="bDone" type="button" style="display:none">Fechar</button></div>
+  </div>
+</div>
+<div class="overlay" id="pubDlg" role="dialog" aria-modal="true" aria-labelledby="pubT">
+  <div class="modal modal-sm">
+    <h2 id="pubT">Publicar dados para a gestão</h2>
+    <p class="hint">Gera o pacote <b>data</b> (endereços, agentes, resultados por ano e manifesto) a partir dos dados já publicados mais o que foi alterado neste aparelho. Nada do histórico é perdido. Depois é só enviar a pasta ao GitHub, substituindo os arquivos.</p>
+    <p class="callout"><i data-ico="alert"></i><span>Se o site for público, qualquer pessoa com o link vê o que estiver nos arquivos. Desmarque o que não deve aparecer.</span></p>
+    <label class="switch"><input type="checkbox" id="pubNomes" checked> Incluir nomes dos agentes</label>
+    <label class="switch"><input type="checkbox" id="pubEnd" checked> Incluir ruas, números e coordenadas exatas<br><br><small class="hint">Desmarcado: sem endereço e com coordenada arredondada (≈100 m).</small></label>
+    <p class="hint" id="pubMsg"></p>
+    <div class="vtools">
+      <button class="btn primary" id="pubBaixar" type="button"><i data-ico="download"></i>Baixar pacote (.zip)</button>
+      <button class="btn push" id="pubFechar" type="button" >Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="impDlg" role="dialog" aria-modal="true" aria-labelledby="impT">
+  <div class="modal">
+    <h2 id="impT">Importar planilha ou backup</h2>
+    <p class="hint">Cole a tabela (copiada do Excel/Planilhas ou do texto) ou escolha um arquivo CSV, TXT ou JSON. Aceita <b>ID, Rua, Nº, Latitude, Longitude, Ovos</b> (atualiza as ovitrampas), <b>Área, Agente, Ovitrampas, Zona, Equipe</b> (atualiza os agentes), a <b>planilha de leituras</b> “contaovos-ovitrampas” (todas as semanas do ano; só as colunas necessárias são usadas e o restante é ignorado) ou a planilha mensal “contaovos-contagens” ou um backup JSON. Nada é alterado antes de você confirmar.</p>
+    <div class="vtools"><input type="file" id="impFile" accept=".csv,.tsv,.txt,.json,text/*"></div>
+    <textarea id="impTxt" rows="7" placeholder="Cole aqui a tabela…"></textarea>
+    <div id="impPrev" class="impprev"></div>
+    <div class="vtools" id="impOpc" style="display:none">
+      <label class="switch"><input type="checkbox" id="impOvos" checked> Aplicar ovos</label>
+      <label class="switch"><input type="checkbox" id="impEnd" checked> Aplicar rua e número</label>
+      <label class="switch"><input type="checkbox" id="impCoord" checked> Aplicar coordenadas</label>
+      <label class="switch"><input type="checkbox" id="impCoordBig" checked> Aceitar coordenadas que mudaram mais de 50 m (ovitrampa instalada em outro lugar)</label>
+      <label class="switch" id="impSerieW" style="display:none"><input type="checkbox" id="impSerie" checked> Guardar a série mensal (gráficos da página da gestão)</label>
+    </div>
+    <div class="vtools">
+      <button class="btn primary" id="impAplicar" type="button" disabled>Aplicar alterações</button>
+      <button class="btn push" id="impFechar" type="button" >Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="indDlg" role="dialog" aria-modal="true" aria-labelledby="indT">
+  <div class="modal">
+    <h2 id="indT">Indicadores das ovitrampas</h2>
+    <div class="vtools">
+      <label for="indOrd">Ordenar agentes por</label>
+      <select id="indOrd"><option value="ovos">Total de ovos</option><option value="ipo">IPO</option><option value="imo">IDO</option><option value="zona">Zona</option></select>
+      <button class="btn" id="indCsv" type="button">Exportar CSV</button>
+      <button class="btn" id="indPdf" type="button">Resumo gerencial (PDF)</button>
+      <button class="btn primary push" id="indFechar" type="button" >Fechar</button>
+    </div>
+    <div id="indBody"></div>
+  </div>
+</div>
+
+<div class="overlay" id="cicloDlg" role="dialog" aria-modal="true" aria-labelledby="cicT">
+  <div class="modal modal-sm">
+    <h2 id="cicT">Registro da ovitrampa</h2>
+    <p class="hint" id="cicSub"></p>
+    <div class="vtools">
+      <label>Instalada em <input type="date" id="cicInst"></label>
+      <label>Recolhida em <input type="date" id="cicRec"></label>
+    </div>
+    <h3>Contagens de ovos</h3>
+    <div class="vtools">
+      <input type="date" id="cicData" aria-label="Data da contagem">
+      <input type="number" id="cicN" min="0" step="1" placeholder="Ovos" style="width:90px" aria-label="Quantidade de ovos">
+      <button class="btn" id="cicAdd" type="button">Adicionar contagem</button>
+    </div>
+    <div id="cicLista"></div>
+    <div id="cicGraf"></div>
+    <p class="hint" id="cicMsg"></p>
+    <div class="vtools">
+      <button class="btn primary" id="cicSalvar" type="button">Salvar</button>
+      <button class="btn push" id="cicFechar" type="button" >Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="gridDlg" role="dialog" aria-modal="true" aria-labelledby="gdT">
+  <div class="modal">
+    <h2 id="gdT">Análise do grid</h2>
+    <div class="vtools">
+      <label class="switch"><input type="checkbox" id="gdLac"> Destacar lacunas no mapa</label>
+      <button class="btn" id="gdKml" type="button">Exportar KML</button>
+      <button class="btn primary push" id="gdFechar" type="button" >Fechar</button>
+    </div>
+    <div id="gdBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+
+
+
+
+
+
+
+
+<script src="assets/vendor/leaflet.js?v=28e01fbf"></script>
+<script src="assets/js/ui.js?v=28e01fbf"></script>
+<script src="assets/js/boot.js?v=28e01fbf"></script>
+</body>
+</html>
