@@ -7,14 +7,14 @@
 <title>Painel de gestão — ovitrampas · Ponta Porã/MS</title>
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" href="assets/fonts/archivo-800.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/tokens.css?v=28e01fbf">
-<link rel="stylesheet" href="assets/vendor/leaflet.css?v=28e01fbf">
-<link rel="stylesheet" href="assets/css/gestao.css?v=28e01fbf">
+<link rel="stylesheet" href="assets/css/tokens.css?v=7f5401fb">
+<link rel="stylesheet" href="assets/vendor/leaflet.css?v=7f5401fb">
+<link rel="stylesheet" href="assets/css/gestao.css?v=7f5401fb">
 </head>
 <body data-pagina="gestao">
 <div id="splash" role="status"><div data-splash-txt>Carregando dados…</div></div>
 <header class="top">
-  <div class="brand"><img alt="Prefeitura Municipal de Ponta Porã" src="assets/img/logo-2x.png?v=28e01fbf" width="158" height="60"><div><h1>Painel de gestão — ovitrampas</h1><p>Vigilância em Saúde / Endemias · Ponta Porã/MS</p></div></div>
+  <div class="brand"><img alt="Prefeitura Municipal de Ponta Porã" src="assets/img/logo-2x.png?v=7f5401fb" width="158" height="60"><div><h1>Painel de gestão — ovitrampas</h1><p>Vigilância em Saúde / Endemias · Ponta Porã/MS</p></div></div>
   <div class="acoes noprint"><span id="atual"></span><button id="btnImp" class="pri" type="button">Imprimir / PDF desta aba</button><button id="btnImpTudo" type="button">Imprimir tudo</button><label class="anosel" for="selAno">Ano <select id="selAno" aria-label="Ano dos resultados"></select></label><button id="btnRec" type="button">Atualizar</button><a class="bt" id="linkApp" href="index.html">Mapa de campo</a></div>
   <div class="faixa"><i style="width:38%;background:var(--navy)"></i><i style="width:30%;background:var(--blue)"></i><i style="width:14%;background:var(--green)"></i><i style="width:11%;background:var(--yellow)"></i><i style="width:7%;background:var(--red)"></i></div>
 </header>
@@ -26,7 +26,7 @@
   <section><div class="kpis" id="kpis"></div></section>
   <section id="alertas"></section>
   <section class="duas">
-    <div class="cx"><h2>Mapa das ovitrampas</h2><div id="mapa"></div><div class="leg" id="leg"></div></div>
+    <div class="cx"><h2>Mapa das ovitrampas</h2><label class="zero noprint"><input type="checkbox" class="chkZero"> Mostrar também as ovitrampas com 0 ovos</label><div id="mapa"></div><div class="leg" id="leg"></div></div>
     <div class="cx"><h2>Faixas de ovos</h2><div id="dist"></div><p class="nota">Cada ponto do mapa tem a cor da faixa de ovos da ovitrampa.</p></div>
   </section>
   <section><h2>Malha, pontos estratégicos e aldeia (contagens separadas)</h2><div id="aparte"></div></section>
@@ -44,8 +44,8 @@
 
 
 
-<script src="assets/vendor/leaflet.js?v=28e01fbf"></script>
-<script src="assets/js/boot.js?v=28e01fbf"></script>
-<script src="assets/js/gestao.js?v=28e01fbf"></script>
+<script src="assets/vendor/leaflet.js?v=7f5401fb"></script>
+<script src="assets/js/boot.js?v=7f5401fb"></script>
+<script src="assets/js/gestao.js?v=7f5401fb"></script>
 </body>
 </html>

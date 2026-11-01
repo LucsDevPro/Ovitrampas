@@ -112,3 +112,9 @@ A rua da planilha vem digitada à mão (sem acento, "Rua:" colado, erros como "T
 ## Alertas e histórico (painel de gestão)
 - Aba "Resumo atual": bloco "Alertas" compara o último mês com o anterior: ficaram positivas (0 → mais de 0), subiram muito (+30 ovos e 1,5× ou mais; ajuste em `LIM_SUBIDA`, `gestao.js`) e negativaram.
 - Aba "Histórico por ovitrampa": escolha o número (ou toque no ID nos alertas) para ver gráfico do ano, média histórica, meses positivos e últimas contagens semanais; abaixo, tabela com todas as ovitrampas.
+
+## Ajustes de novembro
+- Mapa de campo (relatório do agente): a altura do mapa acompanha o formato da área dos pontos, com margem menor e zoom até 19 (`renderMapa` em `06-print.js`).
+- Painel de gestão: o mapa esconde as ovitrampas com 0 ovos; marque "Mostrar também as ovitrampas com 0 ovos" para voltar (vale para o mapa do resumo e o do mês).
+- Evolução semanal: o número do maior valor não fica mais cortado, e a ovitrampa lida mais de uma vez na mesma semana vale uma vez (média). Antes, a SE 6 contava em dobro.
+- Zonas 43 (Sanga 1) e 44 (Sanga 2) marcadas como zona rural em `data/agentes.json`.

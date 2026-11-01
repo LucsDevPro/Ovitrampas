@@ -190,11 +190,17 @@ function desenhaPontos(ctx,P,s,rotulos){
   });
 }
 async function renderMapa(m,lista,cw,satelite,modo){
+  { const c0=m.getContainer(); if(m._hMax&&c0.clientHeight!==m._hMax) c0.style.height=m._hMax+'px'; }
   m.resize();
   if(lista.length===1) m.jumpTo({center:[lista[0].lon,lista[0].lat],zoom:17.5});
   else{
     const bb=new maplibregl.LngLatBounds(); lista.forEach(o=>bb.extend([o.lon,o.lat])); if(gradePrintOn()) cantosCelulas(lista).forEach(p=>bb.extend([p.lon,p.lat]));
-    m.fitBounds(bb,{padding:{top:125,bottom:75,left:85,right:85},maxZoom:18,duration:0});
+    /* altura do mapa acompanha o formato da área dos pontos (só a região com ovitrampas; sem faixa vazia em volta) e margem menor */
+    const cont=m.getContainer(); if(!m._hMax) m._hMax=cont.clientHeight;
+    const a=bb.getSouthWest(), b=bb.getNorthEast(), dx=Math.max(30,(b.lng-a.lng)*Math.cos((a.lat+b.lat)/2*Math.PI/180)*111320), dy=Math.max(30,(b.lat-a.lat)*111320);
+    const hNec=Math.round((dy/dx)*(cw-210)+190), hNovo=Math.max(Math.min(m._hMax,500),Math.min(m._hMax,hNec));
+    if(hNovo!==cont.clientHeight){ cont.style.height=hNovo+'px'; m.resize(); }
+    m.fitBounds(bb,{padding:{top:115,bottom:60,left:105,right:105},maxZoom:19,duration:0});
   }
   await esperaIdle(m,20000);
   const gl=m.getCanvas(), k=gl.width/cw;

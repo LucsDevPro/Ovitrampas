@@ -40,6 +40,7 @@ function kpis(l){ const r=indic(l);
   const mx=Math.max(1,...r.b);
   $('dist').innerHTML=FAIXAS.map(([t,c],i)=>`<div class="bandbar">${svgFaixa(i,c,18)}<i style="background:${c};width:${Math.max(2,Math.round(r.b[i]/mx*50))}%"></i><span><b>${r.b[i]}</b> · ${t}</span></div>`).join('');
 }
+let mostraZero=false;
 function mapaRender(l){
   if(!mapa){
     mapa=L.map('mapa',{scrollWheelZoom:false});
@@ -49,7 +50,7 @@ function mapaRender(l){
     mapa.on('click',()=>mapa.scrollWheelZoom.enable());
   }
   camada.clearLayers(); const ll=[];
-  l.slice().sort((a,b)=>(a.ovos||0)-(b.ovos||0)).forEach(o=>{ if(!isFinite(o.lat)||!isFinite(o.lon)) return; ll.push([o.lat,o.lon]);
+  l.filter(o=>mostraZero||o.ovos!==0).sort((a,b)=>(a.ovos||0)-(b.ovos||0)).forEach(o=>{ if(!isFinite(o.lat)||!isFinite(o.lon)) return; ll.push([o.lat,o.lon]);
     const a=POR_ID[o.id], h=o.hist.slice(-4).reverse();
     marcaFaixa(o.lat,o.lon,o.ovos)
       .bindPopup(`<b>Ovitrampa ${o.id}</b>${o.end?'<br>'+esc(o.end):''}<br>Ovos: <b>${o.ovos===null?'sem contagem':o.ovos}</b>${a?`<br>${esc(nomeAg(a))} · ${esc(eqTxt(a))}<br>${esc(a.area)}`:''}${h.length?'<br><small>'+h.map(x=>x.d.split('-').reverse().join('/')+': '+x.n).join(' · ')+'</small>':''}`).addTo(camada); });
@@ -75,11 +76,14 @@ function criticos(l){
   $('crit').innerHTML=c.length?`<table><thead><tr><th>ID</th>${D.identificado&&D.identificado.enderecos===false?'':'<th>Endereço</th>'}<th>Agente</th><th>Equipe</th><th class="n">Ovos</th></tr></thead><tbody>${c.map(o=>{ const a=POR_ID[o.id]; return `<tr><td><span class="pill">${o.id}</span></td>${D.identificado&&D.identificado.enderecos===false?'':`<td>${esc(o.end||'—')}</td>`}<td>${esc(a?nomeAg(a):'—')}</td><td>${esc(a?eqTxt(a):'—')}</td><td class="n"><span class="ch" style="background:${corOvos(o.ovos)}"></span><b>${o.ovos}</b></td></tr>`; }).join('')}</tbody></table>`:'<p style="padding:14px;margin:0">Nenhuma ovitrampa positiva.</p>';
 }
 function evolucao(l){
-  const m={}; l.forEach(o=>o.hist.forEach(h=>{ const s=semEpi(h.d), k=s.ano+'-'+String(s.sem).padStart(2,'0'); const e=m[k]||(m[k]={ano:s.ano,sem:s.sem,n:0,pos:0,ovos:0}); e.n++; e.ovos+=h.n; if(h.n>0) e.pos++; }));
+  /* por semana epidemiológica: cada ovitrampa conta uma vez; se foi lida mais de uma vez na mesma semana, vale a média (mesma regra do mês) */
+  const m={}; l.forEach(o=>{ const sw={}; o.hist.forEach(h=>{ const s=semEpi(h.d), k=s.ano+'-'+String(s.sem).padStart(2,'0'); const e=sw[k]||(sw[k]={ano:s.ano,sem:s.sem,t:0,c:0}); e.t+=h.n; e.c++; });
+    Object.keys(sw).forEach(k=>{ const s=sw[k], v=s.t/s.c, e=m[k]||(m[k]={ano:s.ano,sem:s.sem,n:0,pos:0,ovos:0}); e.n++; e.ovos+=v; if(v>0) e.pos++; }); });
+  Object.keys(m).forEach(k=>{ m[k].ovos=Math.round(m[k].ovos); });
   const ks=Object.keys(m).sort().map(k=>m[k]);
   if(!ks.length){ $('evo').innerHTML='<div class="cx"><p class="nota" style="margin:0">Ainda não há registros semanais. Quando os agentes registrarem as contagens no aplicativo e os dados forem publicados, a evolução por semana epidemiológica aparece aqui.</p></div>'; return; }
-  const W=720,H=130,bw=W/ks.length, mx=Math.max(1,...ks.map(e=>e.ovos));
-  $('evo').innerHTML=`<div class="cx"><svg viewBox="0 0 ${W} ${H+30}" width="100%" role="img" aria-label="Total de ovos por semana epidemiológica">${ks.map((e,i)=>{ const h=Math.max(2,e.ovos/mx*H); return `<rect x="${i*bw+8}" y="${H-h}" width="${bw-16}" height="${h}" rx="5" fill="#007ECA"/><text x="${i*bw+bw/2}" y="${H-h-5}" font-size="13" font-weight="800" text-anchor="middle" fill="#002B68">${e.ovos}</text><text x="${i*bw+bw/2}" y="${H+18}" font-size="12" text-anchor="middle" fill="#5B7391">SE ${e.sem}</text>`; }).join('')}</svg>
+  const W=720,H=130,T=26,bw=W/ks.length, mx=Math.max(1,...ks.map(e=>e.ovos)), varios=new Set(ks.map(e=>e.ano)).size>1;
+  $('evo').innerHTML=`<div class="cx"><svg viewBox="0 0 ${W} ${H+T+30}" width="100%" role="img" aria-label="Total de ovos por semana epidemiológica">${ks.map((e,i)=>{ const h=Math.max(2,e.ovos/mx*H); return `<rect x="${i*bw+8}" y="${T+H-h}" width="${bw-16}" height="${h}" rx="5" fill="#007ECA"/><text x="${i*bw+bw/2}" y="${T+H-h-6}" font-size="13" font-weight="800" text-anchor="middle" fill="#002B68">${e.ovos}</text><text x="${i*bw+bw/2}" y="${T+H+18}" font-size="12" text-anchor="middle" fill="#5B7391">SE ${e.sem}${varios?"/"+String(e.ano).slice(2):""}</text>`; }).join('')}</svg>
   <div class="tw" style="margin-top:10px"><table><thead><tr><th>Semana epidemiológica</th><th class="n">Contagens</th><th class="n">Positivas</th><th class="n">IPO</th><th class="n">Ovos</th><th class="n">IDO</th></tr></thead><tbody>${ks.map(e=>`<tr><td>SE ${e.sem}/${e.ano}</td><td class="n">${e.n}</td><td class="n">${e.pos}</td><td class="n">${fPct(100*e.pos/e.n)}</td><td class="n"><b>${e.ovos}</b></td><td class="n">${fNum(e.pos?e.ovos/e.pos:null)}</td></tr>`).join('')}</tbody></table></div></div>`;
 }
 function cardsEquipes(){
@@ -227,7 +231,7 @@ function mensalRender(){
   h+=`<section class="duas3"><div class="cx"><h3>IPO por mês (%)</h3>${svgBarras(M.map(x=>x.ipo),v=>v.toFixed(0)+'%','#007ECA')}</div><div class="cx"><h3>Média de ovos: IDO e IDV</h3>${svgLinhas([{nome:'IDO',cor:'#E0182D',vals:M.map(x=>x.ido)},{nome:'IDV',cor:'#00A651',vals:M.map(x=>x.idv)}])}<div class="leg"><span><i style="background:#E0182D"></i>IDO · ovos por ovitrampa positiva</span><span><i style="background:#00A651"></i>IDV · ovos por ovitrampa</span></div></div></section>`;
   h+=`<section class="duas3"><div class="cx"><h3>Total de ovos por mês</h3>${svgBarras(M.map(x=>x.ov),v=>Math.round(v).toLocaleString('pt-BR'),'#FFB900')}</div><div class="cx"><h3>Comparação com a média histórica</h3>${svgLinhas([{nome:'rel',cor:'#7B2CBF',vals:M.map(x=>x.rel===null?null:x.rel*100)}])}<p class="nota">100% = o mesmo nível da média histórica de cada ovitrampa. Acima de 100%: mais ovos que o habitual.</p></div></section>`;
   h+=`<section><h2>Mês a mês</h2><div class="tw"><table><thead><tr><th>Mês</th><th class="n">Ovitrampas</th><th class="n">Positivas</th><th class="n">IPO</th><th class="n">Δ IPO</th><th class="n">Ovos</th><th class="n">Δ ovos</th><th class="n">IDO</th><th class="n">IDV</th><th class="n">vs histórico</th></tr></thead><tbody>${M.map((x,i)=>`<tr class="${i===mesSel?'sel':''}" data-m="${i}" style="cursor:pointer"><td><b>${nomeMes(MESES[i]).split(' de ')[0]}</b>${MULTI[MESES[i]]?' <small title="média de 2 leituras">*</small>':''}</td><td class="n">${x.n}</td><td class="n">${x.pos}</td><td class="n">${fPct(x.ipo)}</td><td class="n">${i?fDelta(x.ipo,M[i-1].ipo,true):'—'}</td><td class="n"><b>${Math.round(x.ov).toLocaleString('pt-BR')}</b></td><td class="n">${i?fDelta(x.ov,M[i-1].ov):'—'}</td><td class="n">${fOv(x.ido)}</td><td class="n">${fOv(x.idv)}</td><td class="n">${x.rel===null?'—':Math.round(x.rel*100)+'%'}</td></tr>`).join('')}</tbody></table></div>${Object.keys(MULTI).length?'<p class="nota">* Mês com mais de uma leitura por ovitrampa: usa-se a média das leituras.</p>':''}</section>`;
-  h+=`<section><h2>Mapa do mês</h2><div class="cx"><div class="noprint" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><input type="range" id="rng" min="0" max="${n-1}" value="${mesSel}" style="flex:1;min-width:180px"><b id="rngTxt">${nomeMes(MESES[mesSel])}</b><label style="font-weight:700;font-size:13px"><input type="checkbox" id="chkExtras" ${$('chkExtras')&&!$('chkExtras').checked?'':'checked'}> pontos estratégicos (◆) e aldeia (●)</label></div><div id="mapaM"></div><div class="leg">${FAIXAS.map(([t,c])=>`<span><i style="background:${c}"></i>${t}</span>`).join('')}<span><i style="background:#fff;border-radius:3px;transform:rotate(45deg)"></i>ponto estratégico/extra</span></div></div></section>`;
+  h+=`<section><h2>Mapa do mês</h2><div class="cx"><div class="noprint" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><label class="zero" style="margin:0"><input type="checkbox" class="chkZero" ${mostraZero?'checked':''}> Mostrar 0 ovos</label><input type="range" id="rng" min="0" max="${n-1}" value="${mesSel}" style="flex:1;min-width:180px"><b id="rngTxt">${nomeMes(MESES[mesSel])}</b><label style="font-weight:700;font-size:13px"><input type="checkbox" id="chkExtras" ${$('chkExtras')&&!$('chkExtras').checked?'':'checked'}> pontos estratégicos (◆) e aldeia (●)</label></div><div id="mapaM"></div><div class="leg">${FAIXAS.map(([t,c])=>`<span><i style="background:${c}"></i>${t}</span>`).join('')}<span><i style="background:#fff;border-radius:3px;transform:rotate(45deg)"></i>ponto estratégico/extra</span></div></div></section>`;
   h+=`<section><h2>Mapa de calor: equipes e áreas por mês</h2><div class="filtros noprint"><b style="color:var(--navy)">Métrica:</b> ${[['ipo','IPO %'],['idv','IDV · ovos por ovitrampa'],['ov','Total de ovos']].map(([k,t])=>`<button class="chip ${metHeat===k?'on':''}" data-heat="${k}">${t}</button>`).join(' ')}</div><div class="tw" style="max-height:620px" id="heat">${heatHtml()}</div></section>`;
   h+=`<section><h2>Quem mais mudou em ${rotMes(MESES[mesSel])}</h2>${variacaoHtml()}</section>`;
   box.innerHTML=h; mapaMensal();
@@ -278,7 +282,7 @@ function mapaMensal(){
 }
 function mapaMesPontos(ajusta){
   if(!mapaM) return; camM.clearLayers(); extM.clearLayers(); const ll=[], i=mesSel;
-  ptsFil().filter(o=>vMes(o,i)!==null&&isFinite(o.lat)).sort((a,b)=>vMes(a,i)-vMes(b,i)).forEach(o=>{ const v=vMes(o,i), a=POR_ID[o.id]; ll.push([o.lat,o.lon]);
+  ptsFil().filter(o=>vMes(o,i)!==null&&(mostraZero||vMes(o,i)!==0)&&isFinite(o.lat)).sort((a,b)=>vMes(a,i)-vMes(b,i)).forEach(o=>{ const v=vMes(o,i), a=POR_ID[o.id]; ll.push([o.lat,o.lon]);
     marcaFaixa(o.lat,o.lon,v).bindPopup(`<b>Ovitrampa ${o.id}</b>${o.end?'<br>'+esc(o.end):''}<br>${rotMes(MESES[i])}: <b>${fOv(v)} ovos</b>${BASE[o.id]!==undefined?`<br>Média histórica: ${BASE[o.id]}`:''}${a?`<br>${esc(nomeAg(a))} · ${esc(eqTxt(a))}`:''}<br>${spark(SERIE[o.id]||[],150,28)}<br><small>${MESES.map(rotMes).join(' · ')}</small>`).addTo(camM); });
   if($('chkExtras')&&$('chkExtras').checked) EXTRAS.filter(e=>e.serie[i]!==null&&e.serie[i]!==undefined&&isFinite(e.lat)).forEach(e=>{ const v=e.serie[i];
     L.marker([e.lat,e.lon],{icon:L.divIcon({className:'',iconSize:[16,16],html:`<div class="ext${categoriaPonto(e.id)==='ai'?' ai':''}" style="background:${corOvos(v)}"></div>`})}).bindPopup(`<b>${esc(CATEGORIAS[categoriaPonto(e.id)]||'Ponto')}: ${esc(e.id)}</b><br>${rotMes(MESES[i])}: <b>${fOv(v)} ovos</b>${e.base!==null?`<br>Média histórica: ${e.base}`:''}`).addTo(extM); ll.push([e.lat,e.lon]); });
@@ -360,3 +364,5 @@ document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closes
 try{ const q=new URL(location.href).searchParams; const p=q.get('equipe'); if(p!==null&&p!=='') filtro=+p; const ab=q.get('aba'); if(ab==='mensal'||ab==='focos'||ab==='hist') aba=ab; window.__mesParam=q.get('mes'); }catch(e){}
 async function iniciar(){ await carrega(); if(window.__mesParam&&MESES.indexOf(window.__mesParam)>=0) mesSel=MESES.indexOf(window.__mesParam); if(aba!=='resumo') mostraAba(aba); }
 iniciar();
+
+document.addEventListener('change',e=>{ if(e.target&&e.target.classList&&e.target.classList.contains('chkZero')){ mostraZero=e.target.checked; document.querySelectorAll('.chkZero').forEach(c=>c.checked=mostraZero); if(typeof mapaRender==='function'){ mapaRender(ptsFil()); if(aba==='mensal'&&typeof mapaMesPontos==='function') mapaMesPontos(true); } } });

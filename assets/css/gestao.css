@@ -133,3 +133,5 @@ input[type=range]{accent-color:var(--blue)}
 
 .alts{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}.cx.alt{border-top-width:6px}
 button.lk{padding:2px 8px;border-radius:8px;border:2px solid var(--azul);color:var(--azul);background:#fff;font-size:13px}
+
+.zero{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:13px;font-weight:700;color:var(--mute)}

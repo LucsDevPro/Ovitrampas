@@ -1,7 +1,7 @@
 /* app/07-agentes-lote.js — agentes, áreas, equipes e geração de mapas em lote. Carregado em ordem por boot.js; compartilha variáveis com os outros arquivos app/. */
 /* ================= MAPAS POR AGENTE (lotes de 5) ================= */
 /* ===================== AGENTES, ÁREAS E EQUIPES (planilha da coordenação) =====================
-   [zona, área, agente, ovitrampa inicial, final, equipe]. Zonas 43 e 44 ainda sem agente/equipe definidos. */
+   [zona, área, agente, ovitrampa inicial, final, equipe]. Zonas 43 (Sanga 1) e 44 (Sanga 2): zona rural, ainda sem agente/equipe. */
 const AGENTES_RAW=window.__BOOT.agentes;
 const COR_EQ={1:'#007ECA',2:'#00A651',3:'#C98A00',4:'#E0182D'};
 const tituloPT=t=>String(t).toLowerCase().split(' ').map((w,i)=>/^(i|ii|iii|iv|v)$/.test(w)?w.toUpperCase():w==='p.p.'?'P.P.':(i>0&&['de','da','do','dos','das','e'].includes(w))?w:w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
