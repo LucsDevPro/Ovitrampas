@@ -118,3 +118,25 @@ A rua da planilha vem digitada à mão (sem acento, "Rua:" colado, erros como "T
 - Painel de gestão: o mapa esconde as ovitrampas com 0 ovos; marque "Mostrar também as ovitrampas com 0 ovos" para voltar (vale para o mapa do resumo e o do mês).
 - Evolução semanal: o número do maior valor não fica mais cortado, e a ovitrampa lida mais de uma vez na mesma semana vale uma vez (média). Antes, a SE 6 contava em dobro.
 - Zonas 43 (Sanga 1) e 44 (Sanga 2) marcadas como zona rural em `data/agentes.json`.
+
+## Visual do painel de gestão (estilo dashboard)
+Cabeçalho escuro com os indicadores gerais (IPO, IDO, IDV, positivas, ovos, sem contagem) e cartões brancos limpos em fundo claro. As cores ficam no fim de `assets/css/gestao.css` (variáveis `--hd`, `--ac`, `--ac2`). Na impressão o cabeçalho volta a ser claro.
+
+## Fontes
+Unbounded (títulos e números do painel) e Bricolage Grotesque (texto), ambas licença OFL, em `assets/fonts/`. As folhas impressas/PDF continuam com Archivo (mais legível no papel).
+
+## Números inteiros e ordenação
+- A contagem mensal de cada ovitrampa é sempre um número inteiro: se houve mais de uma leitura no mês, vale a média arredondada (qualquer média acima de 0 vale ao menos 1). Regra igual em `tools/atualizar_dados.py` (`ovos_int`) e em `08-importar.js`.
+- Qualquer tabela do painel e do mapa de campo ordena ao tocar no título da coluna (A–Z / Z–A, números e datas). Código no fim de `assets/js/boot.js`.
+
+## Imprimir só uma parte
+Cada tabela e cartão do painel de gestão tem um ícone de impressora no título; ele imprime só aquela parte, com cabeçalho (logo, título e data). Na aba "Histórico por ovitrampa", o botão "Imprimir esta ovitrampa" gera a folha com o gráfico e os números dela para entregar ao agente da área. Código: `imprimeAlvo` em `assets/js/gestao.js`.
+
+## Mapa de calor
+Marque "Mapa de calor" acima do mapa (resumo e mapa do mês) para ver a concentração de ovos: azul/verde = pouco, amarelo/laranja = médio, vermelho = muito (100 ovos ou mais pesa o máximo; 0 ovos não esquenta). Biblioteca: `assets/vendor/leaflet-heat.js`; código: `calorCamada` em `gestao.js`.
+
+## Resumo para WhatsApp
+Aba "Resumo para WhatsApp" do painel de gestão: escolha o mês e copie o texto pronto (IPO, ovos, positivas, IDO, alertas, equipes e maiores contagens, sempre comparando com o mês anterior) ou baixe/compartilhe a imagem 1080×1920 para o status. Código: `zapDados`, `zapTexto`, `zapImagem` e `zapRender` em `assets/js/gestao.js`.
+
+## Média histórica
+Saiu de todas as telas do painel de gestão (indicador, gráfico, tabelas, balões do mapa e histórico por ovitrampa), para não confundir quem não é da área. A coluna continua sendo lida da planilha e guardada nos dados (`base` em `data/2026.json`), caso precise voltar a usar.

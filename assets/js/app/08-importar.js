@@ -167,6 +167,7 @@ function planoMensal(rows,col,ult){
     const reg=col.reg!==undefined?(num(r[col.reg])||1):1;
     let val=col.media!==undefined?num(r[col.media]):null; if(val===null&&col.ovos!==undefined){ const o=num(r[col.ovos]); val=o===null?null:o/reg; }
     if(val===null){ ign.push(`linha ${i+2}: sem contagem de ovos`); return; }
+    val=val<=0?0:Math.max(1,Math.floor(val+0.5));   /* sempre inteiro (igual ao Python: ovos_int) */
     set.add(mes); if(reg>1) multi[mes]=Math.max(multi[mes]||0,reg);
     const b=col.base!==undefined?num(r[col.base]):null, la=col.lat!==undefined?coordTxt(r[col.lat]):null, lo=col.lon!==undefined?coordTxt(r[col.lon]):null;
     const n=/^\d+$/.test(idt)?parseInt(idt,10):null;
@@ -273,7 +274,7 @@ function htmlPontos(p){
   if(p.ign.length) h+=`<p class="aviso">Ignorado: ${esc(p.ign.slice(0,6).join('; '))}${p.ign.length>6?` … (+${p.ign.length-6})`:''}</p>`;
   if(p.mud.length){
     const linhas=[]; p.mud.forEach(x=>x.m.forEach(y=>linhas.push(`<tr><td>${x.id}</td><td>${nomeCampo[y.t]}</td><td>${esc(y.de===null?'—':y.de)}</td><td>${esc(y.para)}${y.t==='coord'?` <small class="${y.d>50?'aviso':''}">(${Math.round(y.d)} m${y.d>50?' ⚠':''})</small>`:''}</td></tr>`)));
-    h+=`<div class="tw" style="max-height:30vh"><table><thead><tr><th>ID</th><th>Campo</th><th>Atual</th><th>Novo</th></tr></thead><tbody>${linhas.slice(0,150).join('')}</tbody></table></div>${linhas.length>150?`<p class="hint">Mostrando as 150 primeiras de ${linhas.length} mudanças.</p>`:''}`;
+    h+=`<div class="tw" style="max-height:30vh"><table><thead><tr><th>ID ovitrampa</th><th>Campo</th><th>Atual</th><th>Novo</th></tr></thead><tbody>${linhas.slice(0,150).join('')}</tbody></table></div>${linhas.length>150?`<p class="hint">Mostrando as 150 primeiras de ${linhas.length} mudanças.</p>`:''}`;
   } else h+='<p>Nada para atualizar nas ovitrampas: a planilha é igual à base atual.</p>';
   return h;
 }

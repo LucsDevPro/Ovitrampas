@@ -185,3 +185,8 @@ body.ov-on .mk.sel .num{box-shadow:0 0 0 1px #111,inset 0 0 0 1px rgba(0,0,0,.55
 .sec.ajuda>summary .qbtn{background:var(--azul);color:#fff}
 /* identidade: cores do logo nas seções */
 details.sec{border-left:5px solid var(--azul)}details.sec:nth-of-type(2){border-left-color:var(--verde)}details.sec:nth-of-type(3){border-left-color:var(--amarelo)}details.sec:nth-of-type(4){border-left-color:var(--vermelho)}details.sec:nth-of-type(5){border-left-color:var(--marinho)}
+
+/* títulos de coluna ordenáveis */
+table:not(.heat) thead th{cursor:pointer;user-select:none}
+table:not(.heat) thead th[data-ord=asc]::after{content:" ▲";font-size:.8em}
+table:not(.heat) thead th[data-ord=desc]::after{content:" ▼";font-size:.8em}

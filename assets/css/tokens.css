@@ -3,6 +3,12 @@
 @font-face{font-family:'Archivo';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/archivo-600.woff2) format('woff2')}
 @font-face{font-family:'Archivo';font-style:normal;font-weight:800;font-display:swap;src:url(../fonts/archivo-800.woff2) format('woff2')}
 
+@font-face{font-family:'Unbounded';font-weight:700;font-display:swap;src:url(../fonts/unbounded-700.woff2) format('woff2')}
+@font-face{font-family:'Unbounded';font-weight:900;font-display:swap;src:url(../fonts/unbounded-900.woff2) format('woff2')}
+@font-face{font-family:'Bricolage';font-weight:400;font-display:swap;src:url(../fonts/bricolage-400.woff2) format('woff2')}
+@font-face{font-family:'Bricolage';font-weight:600;font-display:swap;src:url(../fonts/bricolage-600.woff2) format('woff2')}
+@font-face{font-family:'Bricolage';font-weight:800;font-display:swap;src:url(../fonts/bricolage-800.woff2) format('woff2')}
+
 :root{
   /* marca */
   --marinho-900:#001a47; --marinho-800:#00215c; --marinho:#002868; --marinho-600:#143d86;
@@ -15,7 +21,8 @@
   /* semânticos */
   --brand:var(--marinho); --link:var(--azul-700); --err:var(--vermelho-700); --warn:#8a5300; --warn-bg:var(--amarelo-100); --ok:var(--verde-700); --sel:#ffc21a;
   /* tipografia */
-  --font:'Archivo','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+  --font:'Bricolage','Archivo','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+  --font-d:'Unbounded','Bricolage','Archivo',system-ui,sans-serif;
   --fs-xs:.75rem; --fs-sm:.8125rem; --fs-md:.9375rem; --fs-lg:1.125rem; --fs-xl:1.375rem; --fs-2xl:1.75rem;
   /* espaçamento (base 4 px) */
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;

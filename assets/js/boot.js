@@ -4,7 +4,7 @@
    · service worker (funcionamento sem internet e atualização controlada). */
 (function(){
   'use strict';
-  const SCRIPT=document.currentScript, RAIZ=new URL('../../',SCRIPT.src).href, VERSAO='7f5401fb';
+  const SCRIPT=document.currentScript, RAIZ=new URL('../../',SCRIPT.src).href, VERSAO='4b49d8a1';
   window.SITE={raiz:RAIZ,versao:VERSAO};
 
   /* ---- hash FNV-1a (mesmo cálculo de tools/atualizar_dados.py) ---- */
@@ -27,7 +27,7 @@
   /* no canvas (relatório / impressão): centro (x,y), tamanho t */
   window.desenhaFaixa=(c,i,x,y,t,cor)=>{ c.save(); c.translate(x-t/2,y-t/2); c.scale(t/16,t/16); const P=new Path2D(FORMA_FAIXA[i]); c.fillStyle=cor||COR_FAIXA[i]; c.fill(P); c.lineWidth=1.6; c.strokeStyle='#111'; c.lineJoin='round'; c.stroke(P); c.restore(); };
 
-  window.CATEGORIAS={pe:'Pontos estratégicos (PE)',ai:'Aldeia (AI)',outro:'Outros pontos'};
+  window.CATEGORIAS={pe:'Ovitrampas em pontos estratégicos (PE)',ai:'Ovitrampas em aldeia (AI)',outro:'Outras ovitrampas'};
 
   /* ---- bibliotecas sob demanda ---- */
   const LIBS={
@@ -97,3 +97,20 @@
     })();
   }
 })();
+
+/* ordenar qualquer tabela (A–Z / Z–A, números e datas) tocando no título da coluna */
+document.addEventListener('click',e=>{
+  const th=e.target.closest&&e.target.closest('thead th'); if(!th||e.target.closest('button,a,input,select')||th.querySelector('button')) return;
+  const tb=th.closest('table'); if(!tb||tb.classList.contains('heat')||!tb.tBodies[0]) return;
+  const idx=[...th.parentNode.children].indexOf(th), asc=th.dataset.ord!=='asc';
+  tb.querySelectorAll('thead th').forEach(x=>{ delete x.dataset.ord; }); th.dataset.ord=asc?'asc':'desc';
+  const chave=tr=>{ const c=tr.children[idx]; let t=(c?c.textContent:'').trim(); if(!t||/^[—–-]$/.test(t)) return {v:null};
+    const d=t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(d) return {n:+(d[3]+d[2].padStart(2,'0')+d[1].padStart(2,'0'))};
+    if(/^[+-−]?\s*[\d.]+(,\d+)?\s*(%|p\.p\.)?$/.test(t)||/^[+-−]?\s*\d+(\.\d+)?\s*(%)?$/.test(t)){ return {n:parseFloat(t.replace('−','-').replace(/\s|%|p\.p\./g,'').replace(/\.(?=\d{3}(\D|$))/g,'').replace(',','.'))}; }
+    const m=t.match(/^(\d+)\s*(de|\/)\s*\d+/); if(m) return {n:+m[1]};
+    return {s:t}; };
+  const todas=[...tb.tBodies[0].rows], fixas=todas.filter(r=>/^total/i.test((r.children[0]||{}).textContent||'')||r.classList.contains('tot')||r.classList.contains('tit')), mov=todas.filter(r=>!fixas.includes(r));
+  mov.sort((a,b)=>{ const x=chave(a), y=chave(b); if(x.v===null&&y.v===null) return 0; if(x.v===null) return 1; if(y.v===null) return -1;
+    let r; if(x.n!==undefined&&y.n!==undefined) r=x.n-y.n; else r=String(x.s!==undefined?x.s:x.n).localeCompare(String(y.s!==undefined?y.s:y.n),'pt',{numeric:true,sensitivity:'base'}); return asc?r:-r; });
+  mov.forEach(r=>tb.tBodies[0].appendChild(r)); fixas.forEach(r=>tb.tBodies[0].appendChild(r));
+});

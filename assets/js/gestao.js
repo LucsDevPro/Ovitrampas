@@ -35,12 +35,25 @@ function chips(){
   const eqs=[...new Set(AGS.map(a=>a.equipe).filter(Boolean))].sort();
   $('chips').innerHTML=[`<button class="chip ${filtro===null?'on':''}" data-f="">Todas</button>`].concat(eqs.map(e=>`<button class="chip ${filtro===e?'on':''}" data-f="${e}" style="${filtro===e?'':'border-color:'+COR_EQ[e]}">Equipe ${e}</button>`)).concat(AGS.some(a=>!a.equipe)?[`<button class="chip ${filtro===0?'on':''}" data-f="0">Sem equipe</button>`]:[]).join(' ');
 }
+/* legenda de cada quadrado de indicador (aparece escrita no próprio quadrado) */
+function legKpi(t,a,ant){
+  if(/^IPO/.test(t)) return 'Índice de Positividade: % das ovitrampas com contagem que tiveram 1 ovo ou mais.'+(ant&&ant.ipo!==null&&a?' A seta mostra a diferença em pontos percentuais (p.p.) em relação ao mês anterior ('+fPct(ant.ipo)+' → '+fPct(a.ipo)+'). p.p. é a diferença entre duas porcentagens, não uma porcentagem.':'');
+  if(/^IDO/.test(t)) return 'Densidade de Ovos: média de ovos só nas ovitrampas positivas (total de ovos ÷ nº de positivas).';
+  if(/^IDV/.test(t)) return 'Média de ovos por ovitrampa com contagem, positivas ou não (total de ovos ÷ nº de ovitrampas).';
+  if(/^Positivas/.test(t)) return 'Ovitrampas com 1 ovo ou mais ÷ ovitrampas que tiveram contagem no mês.';
+  if(/^Total de ovos/.test(t)) return 'Soma dos ovos contados em todas as ovitrampas no mês.';
+  if(/^Sem contagem/.test(t)) return 'Ovitrampas que não tiveram leitura no mês.';
+  return '';
+}
 function kpis(l){ const r=indic(l);
-  $('kpis').innerHTML=[[fPct(r.ipo),'IPO'],[fNum(r.imo),'IDO · ovos por positiva'],[fNum(r.com?r.ovos/r.com:null),'IDV · ovos por ovitrampa'],[r.pos+' de '+r.com,'Positivas / com contagem'],[r.ovos,'Total de ovos'],[r.n-r.com,'Sem contagem']].map(([v,t])=>`<div class="kpi"><b>${v}</b><span>${t}</span></div>`).join('');
+  $('kpis').innerHTML=[[fPct(r.ipo),'IPO'],[fNum(r.imo),'IDO · ovos por positiva'],[fNum(r.com?r.ovos/r.com:null),'IDV · ovos por ovitrampa'],[r.pos+' de '+r.com,'Positivas / com contagem'],[r.ovos,'Total de ovos'],[r.n-r.com,'Sem contagem']].map(([v,t])=>`<div class="kpi"><b>${v}</b><span>${t}</span><em class="kleg">${legKpi(t)}</em></div>`).join('');
   const mx=Math.max(1,...r.b);
   $('dist').innerHTML=FAIXAS.map(([t,c],i)=>`<div class="bandbar">${svgFaixa(i,c,18)}<i style="background:${c};width:${Math.max(2,Math.round(r.b[i]/mx*50))}%"></i><span><b>${r.b[i]}</b> · ${t}</span></div>`).join('');
 }
-let mostraZero=false;
+let mostraZero=false, mostraCalor=false;
+const GRAD_CALOR={0:'#00a8e8',.25:'#22bf4a',.5:'#ffc800',.75:'#ff7a00',1:'#e60026'};
+/* mapa de calor: peso = ovos (100 ovos ou mais = intensidade máxima); 0 ovos não esquenta o mapa */
+const calorCamada=pts=>L.heatLayer(pts.filter(p=>p[2]>0).map(p=>[p[0],p[1],Math.min(1,p[2]/100)]),{radius:30,blur:24,maxZoom:17,max:1,minOpacity:.3,gradient:GRAD_CALOR});
 function mapaRender(l){
   if(!mapa){
     mapa=L.map('mapa',{scrollWheelZoom:false});
@@ -54,6 +67,7 @@ function mapaRender(l){
     const a=POR_ID[o.id], h=o.hist.slice(-4).reverse();
     marcaFaixa(o.lat,o.lon,o.ovos)
       .bindPopup(`<b>Ovitrampa ${o.id}</b>${o.end?'<br>'+esc(o.end):''}<br>Ovos: <b>${o.ovos===null?'sem contagem':o.ovos}</b>${a?`<br>${esc(nomeAg(a))} · ${esc(eqTxt(a))}<br>${esc(a.area)}`:''}${h.length?'<br><small>'+h.map(x=>x.d.split('-').reverse().join('/')+': '+x.n).join(' · ')+'</small>':''}`).addTo(camada); });
+  if(mostraCalor) camada.addLayer(calorCamada(l.map(o=>[o.lat,o.lon,o.ovos||0]).filter(p=>isFinite(p[0])&&isFinite(p[1]))));
   if(ll.length) mapa.fitBounds(ll,{padding:[30,30],maxZoom:17}); setTimeout(()=>mapa.invalidateSize(),50);
   $('leg').innerHTML=FAIXAS.map(([t,c],i)=>`<span>${svgFaixa(i,c,16)}${t}</span>`).join('');
 }
@@ -73,7 +87,7 @@ function tabelaAgentes(){
 }
 function criticos(l){
   const c=l.filter(o=>o.ovos>0).sort((a,b)=>b.ovos-a.ovos||a.id-b.id).slice(0,25);
-  $('crit').innerHTML=c.length?`<table><thead><tr><th>ID</th>${D.identificado&&D.identificado.enderecos===false?'':'<th>Endereço</th>'}<th>Agente</th><th>Equipe</th><th class="n">Ovos</th></tr></thead><tbody>${c.map(o=>{ const a=POR_ID[o.id]; return `<tr><td><span class="pill">${o.id}</span></td>${D.identificado&&D.identificado.enderecos===false?'':`<td>${esc(o.end||'—')}</td>`}<td>${esc(a?nomeAg(a):'—')}</td><td>${esc(a?eqTxt(a):'—')}</td><td class="n"><span class="ch" style="background:${corOvos(o.ovos)}"></span><b>${o.ovos}</b></td></tr>`; }).join('')}</tbody></table>`:'<p style="padding:14px;margin:0">Nenhuma ovitrampa positiva.</p>';
+  $('crit').innerHTML=c.length?`<table><thead><tr><th>ID ovitrampa</th>${D.identificado&&D.identificado.enderecos===false?'':'<th>Endereço</th>'}<th>Agente</th><th>Equipe</th><th class="n">Ovos</th></tr></thead><tbody>${c.map(o=>{ const a=POR_ID[o.id]; return `<tr><td><span class="pill">${o.id}</span></td>${D.identificado&&D.identificado.enderecos===false?'':`<td>${esc(o.end||'—')}</td>`}<td>${esc(a?nomeAg(a):'—')}</td><td>${esc(a?eqTxt(a):'—')}</td><td class="n"><span class="ch" style="background:${corOvos(o.ovos)}"></span><b>${o.ovos}</b></td></tr>`; }).join('')}</tbody></table>`:'<p style="padding:14px;margin:0">Nenhuma ovitrampa positiva.</p>';
 }
 function evolucao(l){
   /* por semana epidemiológica: cada ovitrampa conta uma vez; se foi lida mais de uma vez na mesma semana, vale a média (mesma regra do mês) */
@@ -108,11 +122,11 @@ function resumoAParte(){
   const cards=[];
   if(ci>=0){ const ex=l.filter(o=>vMes(o,ci)!==null&&vMes(o,ci)!==undefined), tot=ex.reduce((t,o)=>t+vMes(o,ci),0), pos=ex.filter(o=>vMes(o,ci)>0).length; cards.push({tit:'Malha de ovitrampas',cls:'malha',ci,n:ex.length,pos,tot,nota:'Base do IPO, IDO e IDV'}); }
   G.forEach(g=>cards.push({tit:CATEGORIAS[g.cat],cls:g.cat,ci:g.ci,n:g.ex.length,pos:g.pos.length,tot:g.tot,nota:'Contagem à parte'}));
-  el.innerHTML=cards.length?`<div class="gcards">${cards.map(g=>`<div class="gcard g-${g.cls}"><header><b>${g.tit}</b><small>${g.nota} · ${rotMes(MESES[g.ci])}</small></header><div class="gipo"><b>${fPct(g.n?100*g.pos/g.n:null)}</b><span>IPO</span></div><div class="gnum"><div><b>${g.n}</b><span>Pontos</span></div><div><b>${g.pos}</b><span>Positivos</span></div><div><b>${fOv(g.pos?g.tot/g.pos:null)}</b><span>IDO</span></div><div><b>${fOv(g.tot)}</b><span>Ovos</span></div></div></div>`).join('')}</div><p class="nota">Pontos estratégicos e aldeia têm contagem própria: não entram no IPO, IDO e IDV da malha.</p>`:'<p>Nenhum ponto nesta base.</p>';
+  el.innerHTML=cards.length?`<div class="gcards">${cards.map(g=>`<div class="gcard g-${g.cls}"><header><b>${g.tit}</b><small>${g.nota} · ${rotMes(MESES[g.ci])}</small></header><div class="gipo"><b>${fPct(g.n?100*g.pos/g.n:null)}</b><span>IPO</span></div><div class="gnum"><div><b>${g.n}</b><span>Ovitrampas</span></div><div><b>${g.pos}</b><span>Positivos</span></div><div><b>${fOv(g.pos?g.tot/g.pos:null)}</b><span>IDO</span></div><div><b>${fOv(g.tot)}</b><span>Ovos</span></div></div></div>`).join('')}</div><p class="nota">As ovitrampas de pontos estratégicos (borracharias etc.) e de aldeia têm contagem própria: não entram no IPO, IDO e IDV da malha.</p>`:'<p>Nenhuma ovitrampa nesta base.</p>';
 }
 function render(){
   const l=ptsFil(); chips(); kpis(l); resumoAParte(); mapaRender(l); tabelaEquipes(); tabelaAgentes(); criticos(l); evolucao(l); cardsEquipes(); alertasRender();
-  if(aba==='mensal') mensalRender(); if(aba==='focos') focosRender(); if(aba==='hist') histRender();
+  if(aba==='mensal') mensalRender(); if(aba==='focos') focosRender(); if(aba==='hist') histRender(); if(aba==='zap') zapRender();
   const q=D.gerado?new Date(D.gerado).toLocaleString('pt-BR'):null;
   $('atual').textContent=q?'Dados de '+q:'';
   $('rod').innerHTML=`<b>IPO</b> = ovitrampas positivas (com 1 ovo ou mais) ÷ ovitrampas com contagem. <b>IDO</b> = total de ovos ÷ ovitrampas positivas. <b>IDV</b> = total de ovos ÷ ovitrampas com contagem. Ovitrampas sem contagem não entram nos cálculos.<br>Fonte: arquivos de dados publicados em ${q||'—'}${D.ano?' · ano '+D.ano:''} · Gerado em ${new Date().toLocaleString('pt-BR')}.`;
@@ -146,11 +160,12 @@ async function carrega(novoAno){
   seletorAno(); prepara(); render();
 }
 function mostraAba(a){
-  aba=a; ['resumo','mensal','focos','hist'].forEach(t=>{ $('tab-'+t).classList.toggle('off',t!==a); });
+  aba=a; ['resumo','mensal','focos','hist','zap'].forEach(t=>{ $('tab-'+t).classList.toggle('off',t!==a); });
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===a));
   if(a==='mensal') mensalRender(); else if(timer){ clearInterval(timer); timer=null; }
   if(a==='focos') focosRender();
   if(a==='hist') histRender();
+  if(a==='zap') zapRender();
   if(a==='resumo') setTimeout(()=>mapa&&mapa.invalidateSize(),60);
   updUrl();
 }
@@ -223,15 +238,15 @@ function mensalRender(){
   if(!temSerie()){ box.innerHTML='<div class="cx"><h2>Análise mensal</h2><p>Ainda não há série mensal publicada. No mapa de campo: <b>Dados e conferência → Importar planilha ou backup</b> (planilha “contaovos-contagens”), depois <b>Publicar dados para a gestão</b> e envie o dados.json ao GitHub.</p></div>'; return; }
   const l=ptsFil(), n=MESES.length, M=MESES.map((_,i)=>metMes(l,i)), a=M[mesSel], ant=mesSel>0?M[mesSel-1]:null;
   const chipsM=`<div class="filtros noprint">${MESES.map((m,i)=>`<button class="chip ${i===mesSel?'on':''}" data-m="${i}">${rotMes(m)}</button>`).join(' ')}<button class="chip" id="btnPlay" type="button">${timer?'⏸ Parar':'▶ Animar'}</button></div>`;
-  const kp=[[fPct(a.ipo),'IPO',ant?fDelta(a.ipo,ant.ipo,true):''],[fOv(a.ido),'IDO (ovos por positiva)',ant?fDelta(a.ido,ant.ido):''],[fOv(a.idv),'IDV (ovos por ovitrampa)',ant?fDelta(a.idv,ant.idv):''],[a.pos+' de '+a.n,'Positivas / ovitrampas',''],[fOv(a.ov),'Total de ovos',ant?fDelta(a.ov,ant.ov):''],[a.rel===null?'—':Math.round(a.rel*100)+'%','Em relação à média histórica','']];
+  const kp=[[fPct(a.ipo),'IPO',ant?fDelta(a.ipo,ant.ipo,true):''],[fOv(a.ido),'IDO (ovos por positiva)',ant?fDelta(a.ido,ant.ido):''],[fOv(a.idv),'IDV (ovos por ovitrampa)',ant?fDelta(a.idv,ant.idv):''],[a.pos+' de '+a.n,'Positivas / ovitrampas',''],[fOv(a.ov),'Total de ovos',ant?fDelta(a.ov,ant.ov):'']];
   let h=`<h2>Análise de ${nomeMes(MESES[mesSel])}</h2>${chipsM}
-  <div class="kpis">${kp.map(([v,t,d])=>`<div class="kpi"><b>${v}</b><span>${t}</span><small>${d||'&nbsp;'}</small></div>`).join('')}</div>`;
+  <div class="kpis">${kp.map(([v,t,d])=>`<div class="kpi"><b>${v}</b><span>${t}</span><small>${d||'&nbsp;'}</small><em class="kleg">${legKpi(t,a,ant)}</em></div>`).join('')}</div>`;
   if(MULTI[MESES[mesSel]]) h+=`<div class="aviso">Em ${nomeMes(MESES[mesSel])} cada ovitrampa teve ${MULTI[MESES[mesSel]]} leituras. Os números usam a <b>média</b> das leituras do mês.</div>`;
   h+=`<section><h2>Insights do período</h2><div class="cx"><ul class="ins">${insights(M).map(x=>`<li>${x}</li>`).join('')}</ul></div></section>`;
   h+=`<section class="duas3"><div class="cx"><h3>IPO por mês (%)</h3>${svgBarras(M.map(x=>x.ipo),v=>v.toFixed(0)+'%','#007ECA')}</div><div class="cx"><h3>Média de ovos: IDO e IDV</h3>${svgLinhas([{nome:'IDO',cor:'#E0182D',vals:M.map(x=>x.ido)},{nome:'IDV',cor:'#00A651',vals:M.map(x=>x.idv)}])}<div class="leg"><span><i style="background:#E0182D"></i>IDO · ovos por ovitrampa positiva</span><span><i style="background:#00A651"></i>IDV · ovos por ovitrampa</span></div></div></section>`;
-  h+=`<section class="duas3"><div class="cx"><h3>Total de ovos por mês</h3>${svgBarras(M.map(x=>x.ov),v=>Math.round(v).toLocaleString('pt-BR'),'#FFB900')}</div><div class="cx"><h3>Comparação com a média histórica</h3>${svgLinhas([{nome:'rel',cor:'#7B2CBF',vals:M.map(x=>x.rel===null?null:x.rel*100)}])}<p class="nota">100% = o mesmo nível da média histórica de cada ovitrampa. Acima de 100%: mais ovos que o habitual.</p></div></section>`;
-  h+=`<section><h2>Mês a mês</h2><div class="tw"><table><thead><tr><th>Mês</th><th class="n">Ovitrampas</th><th class="n">Positivas</th><th class="n">IPO</th><th class="n">Δ IPO</th><th class="n">Ovos</th><th class="n">Δ ovos</th><th class="n">IDO</th><th class="n">IDV</th><th class="n">vs histórico</th></tr></thead><tbody>${M.map((x,i)=>`<tr class="${i===mesSel?'sel':''}" data-m="${i}" style="cursor:pointer"><td><b>${nomeMes(MESES[i]).split(' de ')[0]}</b>${MULTI[MESES[i]]?' <small title="média de 2 leituras">*</small>':''}</td><td class="n">${x.n}</td><td class="n">${x.pos}</td><td class="n">${fPct(x.ipo)}</td><td class="n">${i?fDelta(x.ipo,M[i-1].ipo,true):'—'}</td><td class="n"><b>${Math.round(x.ov).toLocaleString('pt-BR')}</b></td><td class="n">${i?fDelta(x.ov,M[i-1].ov):'—'}</td><td class="n">${fOv(x.ido)}</td><td class="n">${fOv(x.idv)}</td><td class="n">${x.rel===null?'—':Math.round(x.rel*100)+'%'}</td></tr>`).join('')}</tbody></table></div>${Object.keys(MULTI).length?'<p class="nota">* Mês com mais de uma leitura por ovitrampa: usa-se a média das leituras.</p>':''}</section>`;
-  h+=`<section><h2>Mapa do mês</h2><div class="cx"><div class="noprint" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><label class="zero" style="margin:0"><input type="checkbox" class="chkZero" ${mostraZero?'checked':''}> Mostrar 0 ovos</label><input type="range" id="rng" min="0" max="${n-1}" value="${mesSel}" style="flex:1;min-width:180px"><b id="rngTxt">${nomeMes(MESES[mesSel])}</b><label style="font-weight:700;font-size:13px"><input type="checkbox" id="chkExtras" ${$('chkExtras')&&!$('chkExtras').checked?'':'checked'}> pontos estratégicos (◆) e aldeia (●)</label></div><div id="mapaM"></div><div class="leg">${FAIXAS.map(([t,c])=>`<span><i style="background:${c}"></i>${t}</span>`).join('')}<span><i style="background:#fff;border-radius:3px;transform:rotate(45deg)"></i>ponto estratégico/extra</span></div></div></section>`;
+  h+=`<section><div class="cx"><h3>Total de ovos por mês</h3>${svgBarras(M.map(x=>x.ov),v=>Math.round(v).toLocaleString('pt-BR'),'#FFB900')}</div></section>`;
+  h+=`<section><h2>Mês a mês</h2><div class="tw"><table><thead><tr><th>Mês</th><th class="n">Ovitrampas</th><th class="n">Positivas</th><th class="n">IPO</th><th class="n">Δ IPO</th><th class="n">Ovos</th><th class="n">Δ ovos</th><th class="n">IDO</th><th class="n">IDV</th></tr></thead><tbody>${M.map((x,i)=>`<tr class="${i===mesSel?'sel':''}" data-m="${i}" style="cursor:pointer"><td><b>${nomeMes(MESES[i]).split(' de ')[0]}</b>${MULTI[MESES[i]]?' <small title="média de 2 leituras">*</small>':''}</td><td class="n">${x.n}</td><td class="n">${x.pos}</td><td class="n">${fPct(x.ipo)}</td><td class="n">${i?fDelta(x.ipo,M[i-1].ipo,true):'—'}</td><td class="n"><b>${Math.round(x.ov).toLocaleString('pt-BR')}</b></td><td class="n">${i?fDelta(x.ov,M[i-1].ov):'—'}</td><td class="n">${fOv(x.ido)}</td><td class="n">${fOv(x.idv)}</td></tr>`).join('')}</tbody></table></div>${Object.keys(MULTI).length?'<p class="nota">* Mês com mais de uma leitura por ovitrampa: usa-se a média das leituras.</p>':''}</section>`;
+  h+=`<section><h2>Mapa do mês</h2><div class="cx"><div class="noprint" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><label class="zero" style="margin:0"><input type="checkbox" class="chkZero" ${mostraZero?'checked':''}> Mostrar 0 ovos</label><label class="zero" style="margin:0"><input type="checkbox" class="chkCalor" ${mostraCalor?'checked':''}> Mapa de calor</label><input type="range" id="rng" min="0" max="${n-1}" value="${mesSel}" style="flex:1;min-width:180px"><b id="rngTxt">${nomeMes(MESES[mesSel])}</b><label style="font-weight:700;font-size:13px"><input type="checkbox" id="chkExtras" ${$('chkExtras')&&!$('chkExtras').checked?'':'checked'}> pontos estratégicos (◆) e aldeia (●)</label></div><div id="mapaM"></div><div class="leg">${FAIXAS.map(([t,c],i)=>`<span>${svgFaixa(i,c,16)}${t}</span>`).join('')}<span><b class="lgext"></b>ovitrampa em ponto estratégico (losango) · <b class="lgext ai"></b>aldeia (círculo): cor = faixa de ovos</span></div></div></section>`;
   h+=`<section><h2>Mapa de calor: equipes e áreas por mês</h2><div class="filtros noprint"><b style="color:var(--navy)">Métrica:</b> ${[['ipo','IPO %'],['idv','IDV · ovos por ovitrampa'],['ov','Total de ovos']].map(([k,t])=>`<button class="chip ${metHeat===k?'on':''}" data-heat="${k}">${t}</button>`).join(' ')}</div><div class="tw" style="max-height:620px" id="heat">${heatHtml()}</div></section>`;
   h+=`<section><h2>Quem mais mudou em ${rotMes(MESES[mesSel])}</h2>${variacaoHtml()}</section>`;
   box.innerHTML=h; mapaMensal();
@@ -246,8 +261,6 @@ function insights(M){
   const l=ptsFil(), est=l.map(o=>({o,s:SERIE[o.id]||[]})).filter(x=>x.s.length);
   const pers=est.filter(x=>x.s.filter(y=>y!==null&&y>0).length>=6).length;
   if(est.length) out.push(`<b>Focos persistentes:</b> ${pers} ovitrampa(s) ficaram positivas em 6 ou mais meses (ver aba “Focos e alertas”).`);
-  const ac=l.filter(o=>BASE[o.id]!==undefined&&vMes(o,u)!==null&&vMes(o,u)>BASE[o.id]);
-  out.push(`<b>Acima do habitual:</b> ${ac.length} de ${l.filter(o=>vMes(o,u)!==null).length} ovitrampas estão acima da própria média histórica em ${rotMes(MESES[u])}.`);
   const eq=[...new Set(AGS.map(a=>a.equipe).filter(Boolean))].sort().map(e=>({e,m:metMes(AGS.filter(a=>a.equipe===e).flatMap(a=>a.lista),u)})).filter(x=>x.m.ipo!==null).sort((a,b)=>b.m.ipo-a.m.ipo);
   if(filtro===null&&eq.length>1) out.push(`<b>Equipes em ${rotMes(MESES[u])}:</b> maior IPO na Equipe ${eq[0].e} (${fPct(eq[0].m.ipo)}); menor na Equipe ${eq[eq.length-1].e} (${fPct(eq[eq.length-1].m.ipo)}).`);
   return out;
@@ -283,9 +296,10 @@ function mapaMensal(){
 function mapaMesPontos(ajusta){
   if(!mapaM) return; camM.clearLayers(); extM.clearLayers(); const ll=[], i=mesSel;
   ptsFil().filter(o=>vMes(o,i)!==null&&(mostraZero||vMes(o,i)!==0)&&isFinite(o.lat)).sort((a,b)=>vMes(a,i)-vMes(b,i)).forEach(o=>{ const v=vMes(o,i), a=POR_ID[o.id]; ll.push([o.lat,o.lon]);
-    marcaFaixa(o.lat,o.lon,v).bindPopup(`<b>Ovitrampa ${o.id}</b>${o.end?'<br>'+esc(o.end):''}<br>${rotMes(MESES[i])}: <b>${fOv(v)} ovos</b>${BASE[o.id]!==undefined?`<br>Média histórica: ${BASE[o.id]}`:''}${a?`<br>${esc(nomeAg(a))} · ${esc(eqTxt(a))}`:''}<br>${spark(SERIE[o.id]||[],150,28)}<br><small>${MESES.map(rotMes).join(' · ')}</small>`).addTo(camM); });
+    marcaFaixa(o.lat,o.lon,v).bindPopup(`<b>Ovitrampa ${o.id}</b>${o.end?'<br>'+esc(o.end):''}<br>${rotMes(MESES[i])}: <b>${fOv(v)} ovos</b>${a?`<br>${esc(nomeAg(a))} · ${esc(eqTxt(a))}`:''}<br>${spark(SERIE[o.id]||[],150,28)}<br><small>${MESES.map(rotMes).join(' · ')}</small>`).addTo(camM); });
   if($('chkExtras')&&$('chkExtras').checked) EXTRAS.filter(e=>e.serie[i]!==null&&e.serie[i]!==undefined&&isFinite(e.lat)).forEach(e=>{ const v=e.serie[i];
-    L.marker([e.lat,e.lon],{icon:L.divIcon({className:'',iconSize:[16,16],html:`<div class="ext${categoriaPonto(e.id)==='ai'?' ai':''}" style="background:${corOvos(v)}"></div>`})}).bindPopup(`<b>${esc(CATEGORIAS[categoriaPonto(e.id)]||'Ponto')}: ${esc(e.id)}</b><br>${rotMes(MESES[i])}: <b>${fOv(v)} ovos</b>${e.base!==null?`<br>Média histórica: ${e.base}`:''}`).addTo(extM); ll.push([e.lat,e.lon]); });
+    L.marker([e.lat,e.lon],{icon:L.divIcon({className:'',iconSize:[16,16],html:`<div class="ext${categoriaPonto(e.id)==='ai'?' ai':''}" style="background:${corOvos(v)}"></div>`})}).bindPopup(`<b>${esc(CATEGORIAS[categoriaPonto(e.id)]||'Ponto')}: ${esc(e.id)}</b><br>${rotMes(MESES[i])}: <b>${fOv(v)} ovos</b>`).addTo(extM); ll.push([e.lat,e.lon]); });
+  if(mostraCalor) camM.addLayer(calorCamada(ptsFil().map(o=>[o.lat,o.lon,vMes(o,i)||0]).filter(p=>isFinite(p[0])&&isFinite(p[1]))));
   if(ajusta&&ll.length) mapaM.fitBounds(ll,{padding:[30,30],maxZoom:17});
 }
 function atualizaMes(refazTudo){ if(aba==='mensal'){ if(refazTudo){ mensalRender(); } else { const keep=mapaM?mapaM.getBounds():null; const r=$('rng'); const s=document.scrollingElement.scrollTop; mensalRender(); if(keep&&mapaM) mapaM.fitBounds(keep); document.scrollingElement.scrollTop=s; } } updUrl(); }
@@ -299,7 +313,6 @@ function focosRender(){
   const pers=est.filter(x=>x.pos>=kFoco).sort((a,b)=>b.pos-a.pos||b.tot-a.tot);
   const rank=est.slice().sort((a,b)=>b.tot-a.tot).slice(0,15);
   const picos=est.filter(x=>x.mx>=300).sort((a,b)=>b.mx-a.mx);
-  const acima=est.filter(x=>BASE[x.o.id]!==undefined&&x.s[u]!==null&&x.s[u]!==undefined&&x.s[u]>BASE[x.o.id]&&BASE[x.o.id]>=0).map(x=>({...x,r:BASE[x.o.id]?x.s[u]/BASE[x.o.id]:null})).sort((a,b)=>(b.s[u]-BASE[b.o.id])-(a.s[u]-BASE[a.o.id])).slice(0,12);
   const novas=est.filter(x=>x.lei===1&&x.s[u]!==null&&x.s[u]!==undefined);
   const dist=[...Array(MESES.length+1)].map((_,k)=>est.filter(x=>x.pos===k).length);
   const mid=x=>`<span class="pill">${x.o.id}</span>`, endc=x=>esc(x.o.end||'—'), ag=x=>{ const a=POR_ID[x.o.id]; return a?esc(nomeAg(a))+' · '+esc(eqTxt(a)):'—'; };
@@ -307,16 +320,15 @@ function focosRender(){
   let h=`<h2>Focos e alertas</h2>
   <section><div class="cx"><h3>Ovitrampas positivas em quantos meses?</h3><div class="bandbars">${dist.map((c,k)=>`<div class="bandbar"><i style="background:${k>=kFoco?'#E0182D':'#007ECA'};width:${Math.max(2,Math.round(c/Math.max(1,...dist)*55))}%"></i><span><b>${c}</b> · ${k} ${k===1?'mês':'meses'}</span></div>`).join('')}</div></div></section>
   <section><h2>Focos persistentes</h2><div class="filtros noprint"><label style="font-weight:700">Positivas em pelo menos <b id="kTxt">${kFoco}</b> meses <input type="range" id="kRng" min="2" max="${MESES.length}" value="${kFoco}" style="vertical-align:middle"></label></div>
-  <div class="tw">${pers.length?`<table><thead><tr><th>ID</th>${semEnd?'':'<th>Endereço</th>'}<th>Agente</th><th class="n">Meses +</th><th class="n">Ovos no ano</th><th>${MESES.map(rotMes)[0]} → ${rotMes(MESES[u])}</th><th class="n">Pico</th></tr></thead><tbody>${pers.map(x=>`<tr><td>${mid(x)}</td>${semEnd?'':`<td>${endc(x)}</td>`}<td>${ag(x)}</td><td class="n"><b>${x.pos}</b>/${x.lei}</td><td class="n">${fOv(x.tot)}</td><td>${spark(x.s)}</td><td class="n">${fOv(x.mx)} <small>(${rotMes(MESES[x.mi])})</small></td></tr>`).join('')}</tbody></table>`:'<p style="padding:14px;margin:0">Nenhuma ovitrampa com esse critério.</p>'}</div><p class="nota">${pers.length} ovitrampa(s). Ovitrampas que seguem positivas mês após mês indicam criadouros próximos que merecem inspeção.</p></section>
-  <section><h2>Ranking do ano: mais ovos acumulados</h2><div class="tw"><table><thead><tr><th>ID</th>${semEnd?'':'<th>Endereço</th>'}<th>Agente</th><th class="n">Ovos no ano</th><th class="n">Meses +</th><th>Evolução</th></tr></thead><tbody>${rank.map(x=>`<tr><td>${mid(x)}</td>${semEnd?'':`<td>${endc(x)}</td>`}<td>${ag(x)}</td><td class="n"><b>${fOv(x.tot)}</b></td><td class="n">${x.pos}/${x.lei}</td><td>${spark(x.s)}</td></tr>`).join('')}</tbody></table></div></section>
-  <section><h2>Acima da própria média histórica em ${rotMes(MESES[u])}</h2><div class="tw">${acima.length?`<table><thead><tr><th>ID</th>${semEnd?'':'<th>Endereço</th>'}<th>Agente</th><th class="n">${rotMes(MESES[u])}</th><th class="n">Média histórica</th><th class="n">Razão</th></tr></thead><tbody>${acima.map(x=>`<tr><td>${mid(x)}</td>${semEnd?'':`<td>${endc(x)}</td>`}<td>${ag(x)}</td><td class="n"><b>${fOv(x.s[u])}</b></td><td class="n">${BASE[x.o.id]}</td><td class="n">${x.r===null?'—':x.r.toFixed(1).replace('.',',')+'×'}</td></tr>`).join('')}</tbody></table>`:'<p style="padding:14px;margin:0">Nenhuma ovitrampa acima da média histórica.</p>'}</div></section>
-  <section><h2>Contagens muito altas para conferir (300 ovos ou mais)</h2><div class="tw">${picos.length?`<table><thead><tr><th>ID</th>${semEnd?'':'<th>Endereço</th>'}<th>Agente</th><th class="n">Maior contagem</th><th>Mês</th><th class="n">Média histórica</th></tr></thead><tbody>${picos.map(x=>`<tr><td>${mid(x)}</td>${semEnd?'':`<td>${endc(x)}</td>`}<td>${ag(x)}</td><td class="n"><b>${fOv(x.mx)}</b></td><td>${rotMes(MESES[x.mi])}</td><td class="n">${BASE[x.o.id]===undefined?'—':BASE[x.o.id]}</td></tr>`).join('')}</tbody></table>`:'<p style="padding:14px;margin:0">Nenhuma.</p>'}</div><p class="nota">Valores extremos podem ser reais, mas vale conferir a leitura e o preenchimento.</p></section>`;
+  <div class="tw">${pers.length?`<table><thead><tr><th>ID ovitrampa</th>${semEnd?'':'<th>Endereço</th>'}<th>Agente</th><th class="n">Meses +</th><th class="n">Ovos no ano</th><th>${MESES.map(rotMes)[0]} → ${rotMes(MESES[u])}</th><th class="n">Pico</th></tr></thead><tbody>${pers.map(x=>`<tr><td>${mid(x)}</td>${semEnd?'':`<td>${endc(x)}</td>`}<td>${ag(x)}</td><td class="n"><b>${x.pos}</b>/${x.lei}</td><td class="n">${fOv(x.tot)}</td><td>${spark(x.s)}</td><td class="n">${fOv(x.mx)} <small>(${rotMes(MESES[x.mi])})</small></td></tr>`).join('')}</tbody></table>`:'<p style="padding:14px;margin:0">Nenhuma ovitrampa com esse critério.</p>'}</div><p class="nota">${pers.length} ovitrampa(s). Ovitrampas que seguem positivas mês após mês indicam criadouros próximos que merecem inspeção.</p></section>
+  <section><h2>Ranking do ano: mais ovos acumulados</h2><div class="tw"><table><thead><tr><th>ID ovitrampa</th>${semEnd?'':'<th>Endereço</th>'}<th>Agente</th><th class="n">Ovos no ano</th><th class="n">Meses +</th><th>Evolução</th></tr></thead><tbody>${rank.map(x=>`<tr><td>${mid(x)}</td>${semEnd?'':`<td>${endc(x)}</td>`}<td>${ag(x)}</td><td class="n"><b>${fOv(x.tot)}</b></td><td class="n">${x.pos}/${x.lei}</td><td>${spark(x.s)}</td></tr>`).join('')}</tbody></table></div></section>
+  <section><h2>Contagens muito altas para conferir (300 ovos ou mais)</h2><div class="tw">${picos.length?`<table><thead><tr><th>ID ovitrampa</th>${semEnd?'':'<th>Endereço</th>'}<th>Agente</th><th class="n">Maior contagem</th><th>Mês</th></tr></thead><tbody>${picos.map(x=>`<tr><td>${mid(x)}</td>${semEnd?'':`<td>${endc(x)}</td>`}<td>${ag(x)}</td><td class="n"><b>${fOv(x.mx)}</b></td><td>${rotMes(MESES[x.mi])}</td></tr>`).join('')}</tbody></table>`:'<p style="padding:14px;margin:0">Nenhuma.</p>'}</div><p class="nota">Valores extremos podem ser reais, mas vale conferir a leitura e o preenchimento.</p></section>`;
   gruposAParte().forEach(g=>{
     const meses=MESES.map((m,i)=>{ const a=g.L.filter(e=>e.serie[i]!==null&&e.serie[i]!==undefined); if(!a.length) return null; const p=a.filter(e=>e.serie[i]>0).length; return {m,n:a.length,p,t:a.reduce((t,e)=>t+e.serie[i],0)}; }).filter(Boolean);
-    h+=`<section><h2>${CATEGORIAS[g.cat]} · ${rotMes(MESES[g.ci])}</h2><div class="cx"><p><b>${g.ex.length}</b> ponto(s) com contagem, <b>${g.pos.length}</b> positivo(s) (IPO ${fPct(100*g.pos.length/g.ex.length)}), IDO ${fOv(g.pos.length?g.tot/g.pos.length:null)}, ${fOv(g.tot)} ovos no total.</p>
-    <div class="tw"><table><thead><tr><th>Mês</th><th class="n">Pontos</th><th class="n">Positivos</th><th class="n">IPO</th><th class="n">Ovos</th></tr></thead><tbody>${meses.map(x=>`<tr><td>${rotMes(x.m)}</td><td class="n">${x.n}</td><td class="n">${x.p}</td><td class="n">${fPct(100*x.p/x.n)}</td><td class="n">${fOv(x.t)}</td></tr>`).join('')}</tbody></table></div>
-    <div class="tw" style="max-height:340px"><table><thead><tr><th>Ponto</th><th class="n">Ovos</th><th class="n">Média histórica</th><th>Local</th></tr></thead><tbody>${g.ex.slice().sort((a,b)=>b.serie[g.ci]-a.serie[g.ci]).map(e=>`<tr><td><b>${esc(e.id)}</b></td><td class="n">${fOv(e.serie[g.ci])}</td><td class="n">${e.base===null||e.base===undefined?'—':e.base}</td><td>${isFinite(e.lat)?`<a href="https://www.google.com/maps?q=${e.lat},${e.lon}" target="_blank" rel="noopener">mapa</a>`:'—'}</td></tr>`).join('')}</tbody></table></div>
-    <p class="nota">Contagem à parte: não entra nos indicadores da malha de ovitrampas (1–242).</p></div></section>`;
+    h+=`<section><h2>${CATEGORIAS[g.cat]} · ${rotMes(MESES[g.ci])}</h2><div class="cx"><p><b>${g.ex.length}</b> ovitrampa(s) com contagem, <b>${g.pos.length}</b> positivo(s) (IPO ${fPct(100*g.pos.length/g.ex.length)}), IDO ${fOv(g.pos.length?g.tot/g.pos.length:null)}, ${fOv(g.tot)} ovos no total.</p>
+    <div class="tw"><table><thead><tr><th>Mês</th><th class="n">Ovitrampas</th><th class="n">Positivos</th><th class="n">IPO</th><th class="n">Ovos</th></tr></thead><tbody>${meses.map(x=>`<tr><td>${rotMes(x.m)}</td><td class="n">${x.n}</td><td class="n">${x.p}</td><td class="n">${fPct(100*x.p/x.n)}</td><td class="n">${fOv(x.t)}</td></tr>`).join('')}</tbody></table></div>
+    <div class="tw" style="max-height:340px"><table><thead><tr><th>ID ovitrampa</th><th class="n">Ovos</th><th>Local</th></tr></thead><tbody>${g.ex.slice().sort((a,b)=>b.serie[g.ci]-a.serie[g.ci]).map(e=>`<tr><td><b>${esc(e.id)}</b></td><td class="n">${fOv(e.serie[g.ci])}</td><td>${isFinite(e.lat)?`<a href="https://www.google.com/maps?q=${e.lat},${e.lon}" target="_blank" rel="noopener">mapa</a>`:'—'}</td></tr>`).join('')}</tbody></table></div>
+    <p class="nota">Contagem à parte: estas ovitrampas não entram nos indicadores da malha (1–242).</p></div></section>`;
   });
   h+=`<section><h2>Qualidade dos dados</h2><div class="cx"><ul class="ins"><li><b>${novas.length}</b> ovitrampa(s) entraram só em ${rotMes(MESES[u])} e ainda não têm histórico${novas.length&&novas.every(x=>x.tot===0)?' (todas com 0 ovos)':''}.</li>${Object.keys(MULTI).map(m=>`<li>${nomeMes(m)}: ${MULTI[m]} leituras por ovitrampa. A análise usa a média; somar os registros dobraria os ovos e levaria o IPO acima de 100%.</li>`).join('')}${est.filter(x=>x.lei<MESES.length&&x.lei>1).length?`<li>${est.filter(x=>x.lei<MESES.length&&x.lei>1).length} ovitrampa(s) com leituras em apenas parte dos meses.</li>`:''}</ul></div></section>`;
   box.innerHTML=h;
@@ -334,7 +346,7 @@ function alertasRender(){
   const neg=par.filter(x=>x.a>0&&x.b===0);
   const semEnd=D.identificado&&D.identificado.enderecos===false;
   const linhas=(lst,max)=>lst.slice(0,max).map(x=>{ const a=POR_ID[x.o.id]; return `<tr><td><button type="button" class="lk" data-id="${x.o.id}"><b>${x.o.id}</b></button></td>${semEnd?'':`<td>${esc(x.o.end||'—')}</td>`}<td>${a?esc(nomeAg(a)):'—'}</td><td class="n">${x.a}</td><td class="n"><b>${x.b}</b></td><td>${spark(SERIE[x.o.id]||[],110,22)}</td></tr>`; }).join('');
-  const tab=(tit,lst,cor)=>`<div class="cx alt" style="border-top-color:${cor}"><h3 style="color:${cor}">${tit} <span class="pill">${lst.length}</span></h3>${lst.length?`<div class="tw" style="max-height:300px"><table><thead><tr><th>ID</th>${semEnd?'':'<th>Endereço</th>'}<th>Agente</th><th class="n">${rotMes(MESES[p])}</th><th class="n">${rotMes(MESES[u])}</th><th>Ano</th></tr></thead><tbody>${linhas(lst,40)}</tbody></table></div>`:'<p class="nota">Nenhuma.</p>'}</div>`;
+  const tab=(tit,lst,cor)=>`<div class="cx alt" style="border-top-color:${cor}"><h3 style="color:${cor}">${tit} <span class="pill">${lst.length}</span></h3>${lst.length?`<div class="tw" style="max-height:300px"><table><thead><tr><th>ID ovitrampa</th>${semEnd?'':'<th>Endereço</th>'}<th>Agente</th><th class="n">${rotMes(MESES[p])}</th><th class="n">${rotMes(MESES[u])}</th><th>Ano</th></tr></thead><tbody>${linhas(lst,40)}</tbody></table></div>`:'<p class="nota">Nenhuma.</p>'}</div>`;
   el.innerHTML=`<h2>Alertas: ${rotMes(MESES[u])} comparado com ${rotMes(MESES[p])}</h2><div class="alts">${tab('Ficaram positivas (0 → mais de 0)',novas,'#e60026')}${tab('Subiram muito (+'+LIM_SUBIDA.min+' ovos e 1,5× ou mais)',subiu,'#ff7a00')}${tab('Negativaram (voltaram a 0)',neg,'#22bf4a')}</div><p class="nota">Compara só as ovitrampas com contagem nos dois meses. Toque no número da ovitrampa para ver o histórico dela.</p>`;
 }
 let histId=null;
@@ -343,26 +355,134 @@ function histRender(){
   if(!temSerie()){ box.innerHTML='<div class="cx"><h2>Histórico por ovitrampa</h2><p>Disponível quando a série mensal for publicada.</p></div>'; return; }
   const l=ptsFil().slice().sort((a,b)=>a.id-b.id), semEnd=D.identificado&&D.identificado.enderecos===false;
   if(histId===null||!l.some(o=>o.id===histId)) histId=l.length?l[0].id:null;
-  const o=l.find(x=>x.id===histId); let h=`<h2>Histórico por ovitrampa</h2><div class="filtros noprint"><label style="font-weight:800">Ovitrampa nº <input type="number" id="hId" list="hLista" value="${histId??''}" min="1" style="width:90px;padding:8px;border:2px solid var(--line);border-radius:10px;font:inherit;font-weight:800"></label><datalist id="hLista">${l.map(x=>`<option value="${x.id}">`).join('')}</datalist><button type="button" id="hAnt">◀</button><button type="button" id="hProx">▶</button></div>`;
-  if(o){ const s=SERIE[o.id]||[], v=s.filter(x=>x!==null&&x!==undefined), pos=v.filter(x=>x>0).length, tot=v.reduce((t,x)=>t+x,0), mx=v.length?Math.max(...v):null, a=POR_ID[o.id], b=BASE[o.id];
+  const o=l.find(x=>x.id===histId); let h=`<h2>Histórico por ovitrampa</h2><div class="filtros noprint"><label style="font-weight:800">Ovitrampa nº <input type="number" id="hId" list="hLista" value="${histId??''}" min="1" style="width:90px;padding:8px;border:2px solid var(--line);border-radius:10px;font:inherit;font-weight:800"></label><datalist id="hLista">${l.map(x=>`<option value="${x.id}">`).join('')}</datalist><button type="button" id="hAnt">◀</button><button type="button" id="hProx">▶</button><button type="button" id="hPrn" class="pri" style="display:inline-flex;align-items:center;gap:8px">${SVG_PRN} Imprimir esta ovitrampa</button></div>`;
+  if(o){ const s=SERIE[o.id]||[], v=s.filter(x=>x!==null&&x!==undefined), pos=v.filter(x=>x>0).length, tot=v.reduce((t,x)=>t+x,0), mx=v.length?Math.max(...v):null, a=POR_ID[o.id];
     const ult=s.length?s[s.length-1]:null, ant=s.length>1?s[s.length-2]:null;
     const seta=(ult===null||ant===null||ult===undefined||ant===undefined)?'—':ult>ant?'▲ subiu':ult<ant?'▼ caiu':'= igual';
     h+=`<div class="cx"><h3 style="font-size:20px">Ovitrampa ${o.id}${o.end&&!semEnd?' · '+esc(o.end):''}</h3><p class="nota">${a?esc(nomeAg(a))+' · '+esc(eqTxt(a))+' · '+esc(a.area||''):'Sem agente definido'}</p>
-    <div class="kpis">${[[fOv(ult),'Último mês · '+seta],[pos+' de '+v.length,'Meses positivos'],[fOv(tot),'Ovos no ano'],[fOv(mx),'Maior contagem'],[b===undefined?'—':fOv(b),'Média histórica']].map(([x,t])=>`<div class="kpi"><b>${x}</b><span>${t}</span></div>`).join('')}</div>
-    <h3 style="margin-top:14px">Ovos por mês <small style="font-weight:600;color:var(--mute)">(linha vermelha = média histórica)</small></h3>${svgLinhas([{cor:'#002868',vals:s},{cor:'#e60026',vals:MESES.map(()=>b===undefined?null:b)}],150)}
+    <div class="kpis">${[[fOv(ult),'Último mês · '+seta],[pos+' de '+v.length,'Meses positivos'],[fOv(tot),'Ovos no ano'],[fOv(mx),'Maior contagem']].map(([x,t])=>`<div class="kpi"><b>${x}</b><span>${t}</span></div>`).join('')}</div>
+    <h3 style="margin-top:14px">Ovos por mês</h3>${svgLinhas([{cor:'#002868',vals:s}],150)}
     <div class="tw"><table><thead><tr><th>Mês</th>${MESES.map(m=>`<th class="n">${rotMes(m)}</th>`).join('')}</tr></thead><tbody><tr><td>Ovos</td>${MESES.map((m,i)=>`<td class="n" style="background:${s[i]===null||s[i]===undefined?'#fff':corOvos(s[i])+'55'}"><b>${fOv(s[i]===undefined?null:s[i])}</b></td>`).join('')}</tr></tbody></table></div>
     ${(o.hist&&o.hist.length)?`<h3 style="margin-top:14px">Últimas contagens semanais</h3><p>${o.hist.slice().reverse().map(x=>`<span class="pill">${x.d.split('-').reverse().join('/')}: <b>${x.n}</b></span>`).join(' ')}</p>`:''}</div>`; }
-  h+=`<section><h2>Todas as ovitrampas (toque para abrir)</h2><div class="tw" style="max-height:520px"><table><thead><tr><th>ID</th>${semEnd?'':'<th>Endereço</th>'}<th>Agente</th><th class="n">Meses +</th><th class="n">Ovos no ano</th><th>Evolução</th></tr></thead><tbody>${l.map(x=>{ const s=SERIE[x.id]||[], a=POR_ID[x.id]; return `<tr><td><button type="button" class="lk" data-id="${x.id}"><b>${x.id}</b></button></td>${semEnd?'':`<td>${esc(x.end||'—')}</td>`}<td>${a?esc(nomeAg(a)):'—'}</td><td class="n">${s.filter(y=>y>0).length}</td><td class="n">${s.reduce((t,y)=>t+(y||0),0)}</td><td>${spark(s,120,22)}</td></tr>`; }).join('')}</tbody></table></div></section>`;
+  h+=`<section><h2>Todas as ovitrampas (toque para abrir)</h2><div class="tw" style="max-height:520px"><table><thead><tr><th>ID ovitrampa</th>${semEnd?'':'<th>Endereço</th>'}<th>Agente</th><th class="n">Meses +</th><th class="n">Ovos no ano</th><th>Evolução</th></tr></thead><tbody>${l.map(x=>{ const s=SERIE[x.id]||[], a=POR_ID[x.id]; return `<tr><td><button type="button" class="lk" data-id="${x.id}"><b>${x.id}</b></button></td>${semEnd?'':`<td>${esc(x.end||'—')}</td>`}<td>${a?esc(nomeAg(a)):'—'}</td><td class="n">${s.filter(y=>y>0).length}</td><td class="n">${s.reduce((t,y)=>t+(y||0),0)}</td><td>${spark(s,120,22)}</td></tr>`; }).join('')}</tbody></table></div></section>`;
   box.innerHTML=h;
   const ir=id=>{ if(l.some(x=>x.id===id)){ histId=id; histRender(); window.scrollTo({top:0}); } };
   const inp=$('hId'); if(inp) inp.onchange=()=>ir(+inp.value);
   const i=l.findIndex(x=>x.id===histId); if($('hAnt')) $('hAnt').onclick=()=>l[i-1]&&ir(l[i-1].id); if($('hProx')) $('hProx').onclick=()=>l[i+1]&&ir(l[i+1].id);
   box.querySelectorAll('.lk').forEach(b=>b.onclick=()=>ir(+b.dataset.id));
+  if($('hPrn')) $('hPrn').onclick=()=>{ const o=l.find(x=>x.id===histId); if(!o) return; const a=POR_ID[o.id]; imprimeAlvo(box.querySelector('.cx'),'Histórico da ovitrampa '+o.id+(o.end&&!semEnd?' · '+o.end:''),(a?'Agente: '+nomeAg(a)+' · '+eqTxt(a)+(a.area?' · '+a.area:''):'Sem agente definido')+' · Ano '+(D.ano||MESES[0].slice(0,4))); };
 }
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('#alertas .lk'); if(b){ histId=+b.dataset.id; mostraAba('hist'); window.scrollTo({top:0}); } });
 
-try{ const q=new URL(location.href).searchParams; const p=q.get('equipe'); if(p!==null&&p!=='') filtro=+p; const ab=q.get('aba'); if(ab==='mensal'||ab==='focos'||ab==='hist') aba=ab; window.__mesParam=q.get('mes'); }catch(e){}
+/* ===== imprimir só uma tabela / um cartão (ícone de impressora) ===== */
+function imprimeAlvo(el,titulo,sub){
+  if(!el) return;
+  const cab=document.createElement('div'); cab.className='pcab';
+  cab.innerHTML=`<img src="assets/img/logo-2x.png" alt="" height="48"><div><b>${esc(titulo)}</b><span>${esc(sub||'Painel de gestão — ovitrampas · Ponta Porã/MS')}</span></div><small>Impresso em ${new Date().toLocaleDateString('pt-BR')}</small>`;
+  el.parentNode.insertBefore(cab,el);
+  const ocultos=[]; let n=el; while(n&&n!==document.body){ [...n.parentNode.children].forEach(s=>{ if(s!==n&&s!==cab&&!(s.contains&&s.contains(cab))&&s.tagName!=='SCRIPT'&&s.tagName!=='STYLE'){ s.classList.add('pn-oc'); ocultos.push(s); } }); n=n.parentNode; }
+  el.classList.add('print-alvo');
+  const fim=()=>{ window.onafterprint=null; cab.remove(); el.classList.remove('print-alvo'); ocultos.forEach(s=>s.classList.remove('pn-oc')); mapa&&mapa.invalidateSize(); mapaM&&mapaM.invalidateSize(); };
+  window.onafterprint=fim;
+  setTimeout(()=>{ mapa&&mapa.invalidateSize(); mapaM&&mapaM.invalidateSize(); setTimeout(()=>{ window.print(); setTimeout(()=>{ if(el.classList.contains('print-alvo')&&!window.onafterprint) fim(); },1500); },300); },100);
+}
+const SVG_PRN='<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M7 3h10v5H7zM5 9h14a2 2 0 0 1 2 2v6h-4v4H7v-4H3v-6a2 2 0 0 1 2-2zm4 6v4h6v-4z" fill="currentColor"/></svg>';
+function addPrn(){
+  document.querySelectorAll('main h2,main h3').forEach(h=>{ const alvo=h.parentElement; if(!alvo||h.dataset.prn||h.closest('.noprint')||!(alvo.tagName==='SECTION'||alvo.classList.contains('cx')||alvo.classList.contains('tabv'))||!alvo.querySelector('table,svg,.kpis,.gcards,#dist,#mapa')) return;
+    h.dataset.prn='1'; const b=document.createElement('button'); b.type='button'; b.className='btprn noprint'; b.title='Imprimir só esta parte'; b.setAttribute('aria-label','Imprimir só esta parte'); b.innerHTML=SVG_PRN;
+    b.onclick=e=>{ e.stopPropagation(); imprimeAlvo(alvo,h.textContent.replace(/\s+/g,' ').trim()); }; h.appendChild(b); });
+}
+{ let tm=null; new MutationObserver(()=>{ clearTimeout(tm); tm=setTimeout(addPrn,120); }).observe(document.querySelector('main')||document.body,{childList:true,subtree:true}); setTimeout(addPrn,800); }
+
+/* ===== Resumo para WhatsApp: texto pronto + imagem (status) com o panorama do mês e a comparação com o mês anterior ===== */
+let zapMes=null;
+const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const fInt=x=>Math.round(x).toLocaleString('pt-BR');
+const f1=x=>(Math.round(x*10)/10).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+function dTxt(a,b,tipo){ if(a===null||b===null||a===undefined||b===undefined) return ''; const d=a-b; if(Math.abs(d)<1e-9) return '■ igual'; const s=d>0?'▲ +':'▼ −', x=Math.abs(d); return s+(tipo==='pp'?f1(x)+' p.p.':tipo==='n'?fInt(x):f1(x)); }
+const dCor=(a,b)=>(a===null||b===null||a===undefined||b===undefined||Math.abs(a-b)<1e-9)?'#b8c7de':a>b?'#ff8fa3':'#3ddc84';
+function zapDados(i){
+  const todos=AGS.flatMap(a=>a.lista), p=i-1, tem=p>=0;
+  const m=metMes(todos,i), mp=tem?metMes(todos,p):null;
+  const par=tem?todos.map(o=>({a:vMes(o,p),b:vMes(o,i)})).filter(x=>x.a!==null&&x.a!==undefined&&x.b!==null&&x.b!==undefined):[];
+  const bandas=[0,0,0,0,0,0]; todos.forEach(o=>{ const v=vMes(o,i); if(v!==null&&v!==undefined) bandas[banda(v)]++; });
+  const eqs=[...new Set(AGS.map(a=>a.equipe).filter(Boolean))].sort().map(e=>{ const l=AGS.filter(a=>a.equipe===e).flatMap(a=>a.lista); return {e,m:metMes(l,i),mp:tem?metMes(l,p):null}; }).filter(x=>x.m.ipo!==null);
+  const top=todos.map(o=>({o,v:vMes(o,i)})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,3).map(x=>{ const a=POR_ID[x.o.id]; return {id:x.o.id,v:x.v,area:a?a.area:''}; });
+  const ex=['pe','ai'].map(cat=>{ const L=EXTRAS.filter(e=>categoriaPonto(e.id)===cat), f=k=>{ const a=L.filter(e=>e.serie[k]!==null&&e.serie[k]!==undefined); return a.length?{n:a.length,pos:a.filter(e=>e.serie[k]>0).length}:null; }, c=f(i), cp=tem?f(p):null; return c?{cat,n:c.n,pos:c.pos,ipo:100*c.pos/c.n,ipoAnt:cp?100*cp.pos/cp.n:null}:null; }).filter(Boolean);
+  return {i,tem,mes:cap1(nomeMes(MESES[i])),mesC:rotMes(MESES[i]),antC:tem?rotMes(MESES[p]):'',m,mp,bandas,eqs,top,ex,
+    novas:par.filter(x=>x.a===0&&x.b>0).length, subiu:par.filter(x=>x.a>0&&x.b-x.a>=LIM_SUBIDA.min&&x.b>=x.a*LIM_SUBIDA.fator).length, neg:par.filter(x=>x.a>0&&x.b===0).length};
+}
+function zapTexto(d){
+  const v=d.antC?' vs '+d.antC:'', L=[];
+  L.push('📊 *PANORAMA DAS OVITRAMPAS*','*'+d.mes+'* · Ponta Porã/MS','');
+  L.push('🦟 *IPO:* '+f1(d.m.ipo)+'%'+(d.tem?' ('+dTxt(d.m.ipo,d.mp.ipo,'pp')+v+')':''));
+  L.push('🥚 *Total de ovos:* '+fInt(d.m.ov)+(d.tem?' ('+dTxt(d.m.ov,d.mp.ov,'n')+v+')':''));
+  L.push('📍 *Positivas:* '+d.m.pos+' de '+d.m.n+' ovitrampas com contagem'+(d.tem?' ('+dTxt(d.m.pos,d.mp.pos,'n')+v+')':''));
+  L.push('📈 *IDO:* '+f1(d.m.ido)+' ovos por ovitrampa positiva'+(d.tem?' ('+dTxt(d.m.ido,d.mp.ido,'x')+v+')':''),'');
+  if(d.tem) L.push('*Alertas do mês*','🔴 '+d.novas+' ficaram positivas (estavam em 0)','🟠 '+d.subiu+' subiram muito','🟢 '+d.neg+' voltaram a 0','');
+  if(d.eqs.length){ L.push('*IPO por equipe*'); d.eqs.forEach(x=>L.push('Equipe '+x.e+': '+f1(x.m.ipo)+'%'+(d.tem&&x.mp&&x.mp.ipo!==null?' ('+dTxt(x.m.ipo,x.mp.ipo,'pp')+')':''))); L.push(''); }
+  if(d.top.length){ L.push('*Maiores contagens*'); d.top.forEach((x,k)=>L.push((k+1)+'. Ovitrampa '+x.id+(x.area?' ('+titulo(x.area)+')':'')+': '+fInt(x.v)+' ovos')); L.push(''); }
+  d.ex.forEach(x=>L.push('*'+(x.cat==='pe'?'Ovitrampas em pontos estratégicos':'Ovitrampas em aldeia')+':* IPO '+f1(x.ipo)+'% ('+x.pos+' de '+x.n+')'+(x.ipoAnt!==null?' ('+dTxt(x.ipo,x.ipoAnt,'pp')+v+')':'')));
+  if(d.ex.length) L.push('');
+  L.push('_Vigilância em Saúde / Endemias · Prefeitura de Ponta Porã_');
+  return L.join('\n');
+}
+async function zapImagem(d){
+  await Promise.all(['900 40px Unbounded','700 40px Unbounded','400 30px Bricolage','800 30px Bricolage'].map(f=>document.fonts.load(f).catch(()=>{})));
+  const logo=await new Promise(r=>{ const im=new Image(); im.onload=()=>r(im); im.onerror=()=>r(null); im.src='assets/img/logo-2x.png'; });
+  const W=1080,H=1920, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const c=cv.getContext('2d');
+  const UD='Unbounded, Archivo, sans-serif', BR='Bricolage, Archivo, sans-serif';
+  const g=c.createLinearGradient(0,0,W,H); g.addColorStop(0,'#06173a'); g.addColorStop(.6,'#0a2145'); g.addColorStop(1,'#103a73'); c.fillStyle=g; c.fillRect(0,0,W,H);
+  c.fillStyle='rgba(255,255,255,.07)'; for(let x=20;x<W;x+=36) for(let y=20;y<H;y+=36){ c.beginPath(); c.arc(x,y,2.2,0,7); c.fill(); }
+  const rr=(x,y,w,h,r)=>{ c.beginPath(); if(c.roundRect) c.roundRect(x,y,w,h,r); else c.rect(x,y,w,h); };
+  const T=(s,x,y,f,col,al)=>{ c.font=f; c.fillStyle=col; c.textAlign=al||'left'; c.textBaseline='alphabetic'; c.fillText(s,x,y); };
+  const card=(x,y,w,h,top)=>{ rr(x,y,w,h,30); c.fillStyle='rgba(255,255,255,.08)'; c.fill(); c.strokeStyle='rgba(255,255,255,.18)'; c.lineWidth=2; c.stroke(); if(top){ c.save(); rr(x,y,w,h,30); c.clip(); c.fillStyle=top; c.fillRect(x,y,w,8); c.restore(); } };
+  rr(60,56,330,124,24); c.fillStyle='#fff'; c.fill(); if(logo){ const h=96, w=h*logo.width/logo.height; c.drawImage(logo,60+(330-w)/2,56+14,w,h); }
+  T('PANORAMA DAS OVITRAMPAS',60,250,'900 44px '+UD,'#fff');
+  T(d.mes,60,306,'700 38px '+UD,'#4cc3ff');
+  T('Ponta Porã/MS · Vigilância em Saúde / Endemias',60,348,'400 26px '+BR,'#9fb3d1');
+  card(60,390,960,260,'#3ddc84');
+  T('IPO · ovitrampas positivas',100,436,'800 28px '+BR,'#b8c7de');
+  T(f1(d.m.ipo)+'%',96,578,'900 150px '+UD,'#3ddc84');
+  if(d.tem){ T(dTxt(d.m.ipo,d.mp.ipo,'pp')+' vs '+d.antC,100,626,'800 32px '+BR,dCor(d.m.ipo,d.mp.ipo)); }
+  const cw=(960-40)/3, cds=[['OVOS',fInt(d.m.ov),d.tem?dTxt(d.m.ov,d.mp.ov,'n'):'','#ffd23f',d.tem&&dCor(d.m.ov,d.mp.ov)],['POSITIVAS',d.m.pos+'/'+d.m.n,d.tem?dTxt(d.m.pos,d.mp.pos,'n'):'','#4cc3ff',d.tem&&dCor(d.m.pos,d.mp.pos)],['IDO',f1(d.m.ido),d.tem?dTxt(d.m.ido,d.mp.ido,'x'):'','#fff',d.tem&&dCor(d.m.ido,d.mp.ido)]];
+  cds.forEach(([t,v,dl,cor,dc],k)=>{ const x=60+k*(cw+20); card(x,676,cw,180,cor); T(t,x+24,726,'800 24px '+BR,'#b8c7de'); let fs=60; c.font='900 '+fs+'px '+UD; while(c.measureText(v).width>cw-44&&fs>30){ fs-=2; c.font='900 '+fs+'px '+UD; } T(v,x+24,792,'900 '+fs+'px '+UD,cor); if(dl) T(dl,x+24,838,'800 24px '+BR,dc); });
+  T('Ovitrampas por faixa de ovos',60,905,'700 30px '+UD,'#fff');
+  const mxb=Math.max(1,...d.bandas);
+  FAIXAS.forEach(([t,col],k)=>{ const y=935+k*46; desenhaFaixa(c,k,92,y+17,34,col); T(t,130,y+27,'700 27px '+BR,'#fff'); const bw=Math.max(8,d.bandas[k]/mxb*440); rr(370,y+2,bw,30,15); c.fillStyle=col; c.fill(); c.strokeStyle='#111'; c.lineWidth=2; c.stroke(); T(String(d.bandas[k]),370+bw+16,y+28,'900 28px '+UD,'#fff'); });
+  let y=1250;
+  if(d.tem){ T('Alertas do mês',60,y,'700 30px '+UD,'#fff'); y+=26;
+    [[d.novas,'ficaram positivas','#ff8fa3'],[d.subiu,'subiram muito','#ffb454'],[d.neg,'voltaram a 0','#3ddc84']].forEach(([n,t,cor],k)=>{ const x=60+k*(cw+20); card(x,y,cw,112,cor); T(String(n),x+24,y+62,'900 50px '+UD,cor); T(t,x+24,y+94,'800 23px '+BR,'#d5e0f0'); }); y+=112+50; }
+  if(d.eqs.length){ T('IPO por equipe',60,y,'700 30px '+UD,'#fff'); y+=14;
+    d.eqs.forEach((x,k)=>{ const yy=y+k*44; T('Equipe '+x.e,60,yy+30,'800 27px '+BR,'#fff'); const bw=Math.max(8,x.m.ipo/100*400); rr(250,yy+6,bw,30,15); c.fillStyle=COR_EQ[x.e]||'#4cc3ff'; c.fill(); T(f1(x.m.ipo)+'%',250+bw+14,yy+32,'900 26px '+UD,'#fff'); if(d.tem&&x.mp&&x.mp.ipo!==null) T(dTxt(x.m.ipo,x.mp.ipo,'pp'),W-60,yy+32,'800 24px '+BR,dCor(x.m.ipo,x.mp.ipo),'right'); }); y+=d.eqs.length*44+26; }
+  if(d.top.length){ T('Maiores contagens',60,y,'700 30px '+UD,'#fff'); y+=12;
+    d.top.forEach((x,k)=>{ const s=(k+1)+'. Ovitrampa '+x.id+(x.area?' · '+titulo(x.area):''); let fs=26; c.font='800 '+fs+'px '+BR; while(c.measureText(s).width>700&&fs>18){ fs--; c.font='800 '+fs+'px '+BR; } T(s,60,y+34+k*36,'800 '+fs+'px '+BR,'#d5e0f0'); T(fInt(x.v)+' ovos',W-60,y+34+k*36,'900 26px '+UD,'#ffd23f','right'); }); y+=3*36+30; }
+  d.ex.forEach(x=>{ T((x.cat==='pe'?'Pontos estratégicos':'Aldeia')+' · IPO '+f1(x.ipo)+'% ('+x.pos+' de '+x.n+')',60,y+14,'800 25px '+BR,'#9fe0ff'); y+=40; });
+  T('Prefeitura de Ponta Porã · Vigilância em Saúde / Endemias',W/2,H-44,'600 22px '+BR,'#7f93b3','center');
+  return cv;
+}
+function zapRender(){
+  const box=$('tab-zap'); if(!box) return;
+  if(!temSerie()){ box.innerHTML='<div class="cx"><h2>Resumo para WhatsApp</h2><p>Disponível quando a série mensal for publicada.</p></div>'; return; }
+  if(zapMes===null||zapMes>=MESES.length) zapMes=MESES.length-1;
+  const d=zapDados(zapMes), txt=zapTexto(d);
+  box.innerHTML=`<h2>Resumo para WhatsApp</h2><div class="filtros noprint"><label style="font-weight:800">Mês <select id="zMes" style="padding:8px;border:2px solid var(--line);border-radius:10px;font:inherit;font-weight:800">${MESES.map((m,k)=>`<option value="${k}" ${k===zapMes?'selected':''}>${cap1(nomeMes(m))}</option>`).join('')}</select></label><span class="nota" style="margin:0">Compara com ${d.tem?d.antC:'— (primeiro mês, sem comparação)'}. Todas as ovitrampas, sem filtro de equipe. p.p. = pontos percentuais (diferença entre as porcentagens dos dois meses).</span></div>
+  <div class="zapgrid"><div class="cx"><h3>Texto para o grupo</h3><textarea id="zTxt" rows="22" spellcheck="false">${esc(txt)}</textarea><div class="zapbt noprint"><button type="button" class="pri" id="zCopia">Copiar texto</button><button type="button" id="zWpp">Abrir no WhatsApp</button></div><p class="nota" id="zMsg"></p></div>
+  <div class="cx"><h3>Imagem para o status</h3><div id="zImg" class="zimg"><p class="nota">Gerando imagem…</p></div><div class="zapbt noprint"><button type="button" class="pri" id="zBaixa">Baixar imagem</button><button type="button" id="zComp">Compartilhar imagem</button></div></div></div>`;
+  $('zMes').onchange=e=>{ zapMes=+e.target.value; zapRender(); };
+  const msg=t=>{ $('zMsg').textContent=t; setTimeout(()=>{ if($('zMsg')) $('zMsg').textContent=''; },3500); };
+  $('zCopia').onclick=async()=>{ const t=$('zTxt').value; try{ await navigator.clipboard.writeText(t); msg('Texto copiado. Cole no WhatsApp.'); }catch(e){ $('zTxt').select(); document.execCommand&&document.execCommand('copy'); msg('Texto copiado. Cole no WhatsApp.'); } };
+  $('zWpp').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent($('zTxt').value),'_blank','noopener');
+  zapImagem(d).then(cv=>{ if(!$('zImg')) return; $('zImg').innerHTML=''; cv.style.cssText='width:100%;max-width:360px;border-radius:14px;box-shadow:0 6px 20px rgba(10,33,69,.25)'; $('zImg').appendChild(cv); window.__zapCv=cv; });
+  const nome='panorama-ovitrampas-'+MESES[zapMes]+'.png', blob=()=>new Promise(r=>window.__zapCv?window.__zapCv.toBlob(r,'image/png'):r(null));
+  $('zBaixa').onclick=async()=>{ const b=await blob(); if(!b){ msg('A imagem ainda está sendo gerada.'); return; } const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=nome; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); };
+  $('zComp').onclick=async()=>{ const b=await blob(); if(!b){ msg('A imagem ainda está sendo gerada.'); return; } const f=new File([b],nome,{type:'image/png'}); if(navigator.canShare&&navigator.canShare({files:[f]})){ try{ await navigator.share({files:[f],text:$('zTxt').value}); }catch(e){} } else msg('Este aparelho não compartilha direto: use "Baixar imagem" e envie pelo WhatsApp.'); };
+}
+
+try{ const q=new URL(location.href).searchParams; const p=q.get('equipe'); if(p!==null&&p!=='') filtro=+p; const ab=q.get('aba'); if(ab==='mensal'||ab==='focos'||ab==='hist'||ab==='zap') aba=ab; window.__mesParam=q.get('mes'); }catch(e){}
 async function iniciar(){ await carrega(); if(window.__mesParam&&MESES.indexOf(window.__mesParam)>=0) mesSel=MESES.indexOf(window.__mesParam); if(aba!=='resumo') mostraAba(aba); }
 iniciar();
 
 document.addEventListener('change',e=>{ if(e.target&&e.target.classList&&e.target.classList.contains('chkZero')){ mostraZero=e.target.checked; document.querySelectorAll('.chkZero').forEach(c=>c.checked=mostraZero); if(typeof mapaRender==='function'){ mapaRender(ptsFil()); if(aba==='mensal'&&typeof mapaMesPontos==='function') mapaMesPontos(true); } } });
+
+document.addEventListener('change',e=>{ if(e.target&&e.target.classList&&e.target.classList.contains('chkCalor')){ mostraCalor=e.target.checked; document.querySelectorAll('.chkCalor').forEach(c=>c.checked=mostraCalor); mapaRender(ptsFil()); if(mapaM&&aba==='mensal') mapaMesPontos(false); } });

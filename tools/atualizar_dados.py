@@ -174,6 +174,11 @@ def arred(x):
     """Mantém inteiros como inteiros e metades como .5 (média de 2 leituras)."""
     return int(x) if float(x).is_integer() else round(x, 4)
 
+def ovos_int(x):
+    """Contagem mensal sempre em número inteiro (média de 2 leituras arredonda; qualquer média acima de 0 vale ao menos 1)."""
+    x = float(x)
+    return 0 if x <= 0 else max(1, int(x + 0.5))
+
 def mesclar_ano(ano, meses_novos, v, base, ex, multi, ult=None):
     nome = '%d.json' % ano
     atual = ler_json(nome) or dict(esquema=ESQUEMA, ano=ano, meses=[], multi={}, serie={}, base={}, extras={}, campo={}, atual={})
@@ -192,9 +197,9 @@ def mesclar_ano(ano, meses_novos, v, base, ex, multi, ult=None):
         if e['base'] is not None: d['base'] = e['base']
     meses = sorted(set(ant) | {m for m in meses_novos if m.startswith(str(ano))})
     atual['meses'] = meses
-    atual['serie'] = {k: [arred(S[k][m]) if m in S[k] else None for m in meses] for k in sorted(S, key=int)}
+    atual['serie'] = {k: [ovos_int(S[k][m]) if m in S[k] else None for m in meses] for k in sorted(S, key=int)}
     atual['extras'] = {k: dict(base=(arred(X[k]['base']) if X[k]['base'] is not None else None),
-                              serie=[arred(X[k]['v'][m]) if m in X[k]['v'] else None for m in meses]) for k in sorted(X)}
+                              serie=[ovos_int(X[k]['v'][m]) if m in X[k]['v'] else None for m in meses]) for k in sorted(X)}
     for n, b in base.items(): atual['base'][str(n)] = arred(b)
     atual['base'] = {k: atual['base'][k] for k in sorted(atual['base'], key=int)}
     for m, q in multi.items():
