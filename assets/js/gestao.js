@@ -218,11 +218,11 @@ function svgBarras(vals,fmt,cor,h){
   return `<svg viewBox="0 0 ${W} ${h+34}" width="100%" role="img">${vals.map((v,i)=>{ const hh=v===null?0:Math.max(2,v/mx*h);
     return `<g class="mb" data-m="${i}" style="cursor:pointer"><rect x="${i*bw}" y="0" width="${bw}" height="${h+34}" fill="transparent"/><rect x="${i*bw+9}" y="${h-hh+16}" width="${bw-18}" height="${hh}" rx="5" fill="${i===mesSel?'#002B68':cor}"/><text x="${i*bw+bw/2}" y="${h-hh+11}" font-size="12.5" font-weight="800" text-anchor="middle" fill="#002B68">${v===null?'—':fmt(v)}</text><text x="${i*bw+bw/2}" y="${h+31}" font-size="12.5" font-weight="${i===mesSel?800:500}" text-anchor="middle" fill="${i===mesSel?'#002B68':'#5B7391'}">${rotMes(MESES[i])}</text></g>`; }).join('')}</svg>`;
 }
-function svgLinhas(series,h){
+function svgLinhas(series,h,todos){
   h=h||150; const n=MESES.length, W=720, bw=W/n, all=series.flatMap(s=>s.vals.filter(v=>v!==null)), mx=Math.max(1e-9,...all)*1.15;
   const X=i=>i*bw+bw/2, Y=v=>h-(v/mx)*h+14;
   return `<svg viewBox="0 0 ${W} ${h+36}" width="100%" role="img">${[0,.5,1].map(t=>`<line x1="0" x2="${W}" y1="${Y(mx*t)}" y2="${Y(mx*t)}" stroke="#E1EAF3"/>`).join('')}
-  ${series.map(s=>{ const pts=s.vals.map((v,i)=>v===null?null:[X(i),Y(v)]).filter(Boolean); return `<polyline fill="none" stroke="${s.cor}" stroke-width="3.5" stroke-linejoin="round" points="${pts.map(p=>p.join(',')).join(' ')}"/>`+s.vals.map((v,i)=>v===null?'':`<circle cx="${X(i)}" cy="${Y(v)}" r="${i===mesSel?6:3.8}" fill="${s.cor}" stroke="#fff" stroke-width="2"/>`+((i===mesSel||i===n-1)?`<text x="${X(i)}" y="${Y(v)-10}" font-size="12.5" font-weight="800" text-anchor="middle" fill="${s.cor}">${fOv(v)}</text>`:'')).join(''); }).join('')}
+  ${series.map(s=>{ const pts=s.vals.map((v,i)=>v===null?null:[X(i),Y(v)]).filter(Boolean); return `<polyline fill="none" stroke="${s.cor}" stroke-width="3.5" stroke-linejoin="round" points="${pts.map(p=>p.join(',')).join(' ')}"/>`+s.vals.map((v,i)=>v===null?'':`<circle cx="${X(i)}" cy="${Y(v)}" r="${i===mesSel?6:3.8}" fill="${s.cor}" stroke="#fff" stroke-width="2"/>`+((todos||i===mesSel||i===n-1)?`<text x="${X(i)}" y="${Y(v)-10}" font-size="12.5" font-weight="800" text-anchor="middle" fill="${s.cor}">${fOv(v)}</text>`:'')).join(''); }).join('')}
   ${MESES.map((m,i)=>`<g class="mb" data-m="${i}" style="cursor:pointer"><rect x="${i*bw}" y="${h+18}" width="${bw}" height="22" fill="transparent"/><text x="${X(i)}" y="${h+32}" font-size="12.5" font-weight="${i===mesSel?800:500}" text-anchor="middle" fill="${i===mesSel?'#002B68':'#5B7391'}">${rotMes(m)}</text></g>`).join('')}</svg>`;
 }
 function spark(vals,w,h){
@@ -284,7 +284,7 @@ function variacaoHtml(){
 function mapaMensal(){
   const el=$('mapaM'); if(!el) return;
   if(mapaM){ mapaM.remove(); mapaM=null; }
-  mapaM=L.map('mapaM',{scrollWheelZoom:false});
+  mapaM=L.map('mapaM',{scrollWheelZoom:false}); mapaM.on('click',()=>mapaM.scrollWheelZoom.enable());
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Mapa © Esri, HERE, Garmin, OpenStreetMap'}).addTo(mapaM);
   camM=L.layerGroup().addTo(mapaM); extM=L.layerGroup().addTo(mapaM);
   mapaMesPontos(true);
@@ -300,7 +300,7 @@ function mapaMesPontos(ajusta){
   if($('chkExtras')&&$('chkExtras').checked) EXTRAS.filter(e=>e.serie[i]!==null&&e.serie[i]!==undefined&&isFinite(e.lat)).forEach(e=>{ const v=e.serie[i];
     L.marker([e.lat,e.lon],{icon:L.divIcon({className:'',iconSize:[16,16],html:`<div class="ext${categoriaPonto(e.id)==='ai'?' ai':''}" style="background:${corOvos(v)}"></div>`})}).bindPopup(`<b>${esc(CATEGORIAS[categoriaPonto(e.id)]||'Ponto')}: ${esc(e.id)}</b><br>${rotMes(MESES[i])}: <b>${fOv(v)} ovos</b>`).addTo(extM); ll.push([e.lat,e.lon]); });
   if(mostraCalor) camM.addLayer(calorCamada(ptsFil().map(o=>[o.lat,o.lon,vMes(o,i)||0]).filter(p=>isFinite(p[0])&&isFinite(p[1]))));
-  if(ajusta&&ll.length) mapaM.fitBounds(ll,{padding:[30,30],maxZoom:17});
+  if(ajusta&&ll.length) mapaM.fitBounds(ll,{padding:[20,20],maxZoom:18});
 }
 function atualizaMes(refazTudo){ if(aba==='mensal'){ if(refazTudo){ mensalRender(); } else { const keep=mapaM?mapaM.getBounds():null; const r=$('rng'); const s=document.scrollingElement.scrollTop; mensalRender(); if(keep&&mapaM) mapaM.fitBounds(keep); document.scrollingElement.scrollTop=s; } } updUrl(); }
 
@@ -361,7 +361,7 @@ function histRender(){
     const seta=(ult===null||ant===null||ult===undefined||ant===undefined)?'—':ult>ant?'▲ subiu':ult<ant?'▼ caiu':'= igual';
     h+=`<div class="cx"><h3 style="font-size:20px">Ovitrampa ${o.id}${o.end&&!semEnd?' · '+esc(o.end):''}</h3><p class="nota">${a?esc(nomeAg(a))+' · '+esc(eqTxt(a))+' · '+esc(a.area||''):'Sem agente definido'}</p>
     <div class="kpis">${[[fOv(ult),'Último mês · '+seta],[pos+' de '+v.length,'Meses positivos'],[fOv(tot),'Ovos no ano'],[fOv(mx),'Maior contagem']].map(([x,t])=>`<div class="kpi"><b>${x}</b><span>${t}</span></div>`).join('')}</div>
-    <h3 style="margin-top:14px">Ovos por mês</h3>${svgLinhas([{cor:'#002868',vals:s}],150)}
+    <h3 style="margin-top:14px">Ovos por mês</h3>${svgLinhas([{cor:'#002868',vals:s}],150,true)}
     <div class="tw"><table><thead><tr><th>Mês</th>${MESES.map(m=>`<th class="n">${rotMes(m)}</th>`).join('')}</tr></thead><tbody><tr><td>Ovos</td>${MESES.map((m,i)=>`<td class="n" style="background:${s[i]===null||s[i]===undefined?'#fff':corOvos(s[i])+'55'}"><b>${fOv(s[i]===undefined?null:s[i])}</b></td>`).join('')}</tr></tbody></table></div>
     ${(o.hist&&o.hist.length)?`<h3 style="margin-top:14px">Últimas contagens semanais</h3><p>${o.hist.slice().reverse().map(x=>`<span class="pill">${x.d.split('-').reverse().join('/')}: <b>${x.n}</b></span>`).join(' ')}</p>`:''}</div>`; }
   h+=`<section><h2>Todas as ovitrampas (toque para abrir)</h2><div class="tw" style="max-height:520px"><table><thead><tr><th>ID ovitrampa</th>${semEnd?'':'<th>Endereço</th>'}<th>Agente</th><th class="n">Meses +</th><th class="n">Ovos no ano</th><th>Evolução</th></tr></thead><tbody>${l.map(x=>{ const s=SERIE[x.id]||[], a=POR_ID[x.id]; return `<tr><td><button type="button" class="lk" data-id="${x.id}"><b>${x.id}</b></button></td>${semEnd?'':`<td>${esc(x.end||'—')}</td>`}<td>${a?esc(nomeAg(a)):'—'}</td><td class="n">${s.filter(y=>y>0).length}</td><td class="n">${s.reduce((t,y)=>t+(y||0),0)}</td><td>${spark(s,120,22)}</td></tr>`; }).join('')}</tbody></table></div></section>`;
@@ -407,24 +407,29 @@ function zapDados(i){
   const par=tem?todos.map(o=>({a:vMes(o,p),b:vMes(o,i)})).filter(x=>x.a!==null&&x.a!==undefined&&x.b!==null&&x.b!==undefined):[];
   const bandas=[0,0,0,0,0,0]; todos.forEach(o=>{ const v=vMes(o,i); if(v!==null&&v!==undefined) bandas[banda(v)]++; });
   const eqs=[...new Set(AGS.map(a=>a.equipe).filter(Boolean))].sort().map(e=>{ const l=AGS.filter(a=>a.equipe===e).flatMap(a=>a.lista); return {e,m:metMes(l,i),mp:tem?metMes(l,p):null}; }).filter(x=>x.m.ipo!==null);
-  const top=todos.map(o=>({o,v:vMes(o,i)})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,3).map(x=>{ const a=POR_ID[x.o.id]; return {id:x.o.id,v:x.v,area:a?a.area:''}; });
+  const top=todos.map(o=>({o,v:vMes(o,i)})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,5).map(x=>({id:x.o.id,v:x.v,rua:x.o.end||''}));
   const ex=['pe','ai'].map(cat=>{ const L=EXTRAS.filter(e=>categoriaPonto(e.id)===cat), f=k=>{ const a=L.filter(e=>e.serie[k]!==null&&e.serie[k]!==undefined); return a.length?{n:a.length,pos:a.filter(e=>e.serie[k]>0).length}:null; }, c=f(i), cp=tem?f(p):null; return c?{cat,n:c.n,pos:c.pos,ipo:100*c.pos/c.n,ipoAnt:cp?100*cp.pos/cp.n:null}:null; }).filter(Boolean);
   return {i,tem,mes:cap1(nomeMes(MESES[i])),mesC:rotMes(MESES[i]),antC:tem?rotMes(MESES[p]):'',m,mp,bandas,eqs,top,ex,
     novas:par.filter(x=>x.a===0&&x.b>0).length, subiu:par.filter(x=>x.a>0&&x.b-x.a>=LIM_SUBIDA.min&&x.b>=x.a*LIM_SUBIDA.fator).length, neg:par.filter(x=>x.a>0&&x.b===0).length};
 }
+/* texto escrito em palavras simples (sem emoji, sem siglas soltas) para quem não é da área */
+function zapMuda(a,b,un,tipo){ if(a===null||b===null||a===undefined||b===undefined) return ''; const d=a-b; if(Math.abs(d)<1e-9) return 'ficou igual'; const x=Math.abs(d); return (d>0?'aumentou ':'diminuiu ')+(tipo==='pp'?f1(x)+' pontos percentuais':tipo==='n'?fInt(x)+(un?' '+un:''):f1(x)+(un?' '+un:'')); }
 function zapTexto(d){
-  const v=d.antC?' vs '+d.antC:'', L=[];
-  L.push('📊 *PANORAMA DAS OVITRAMPAS*','*'+d.mes+'* · Ponta Porã/MS','');
-  L.push('🦟 *IPO:* '+f1(d.m.ipo)+'%'+(d.tem?' ('+dTxt(d.m.ipo,d.mp.ipo,'pp')+v+')':''));
-  L.push('🥚 *Total de ovos:* '+fInt(d.m.ov)+(d.tem?' ('+dTxt(d.m.ov,d.mp.ov,'n')+v+')':''));
-  L.push('📍 *Positivas:* '+d.m.pos+' de '+d.m.n+' ovitrampas com contagem'+(d.tem?' ('+dTxt(d.m.pos,d.mp.pos,'n')+v+')':''));
-  L.push('📈 *IDO:* '+f1(d.m.ido)+' ovos por ovitrampa positiva'+(d.tem?' ('+dTxt(d.m.ido,d.mp.ido,'x')+v+')':''),'');
-  if(d.tem) L.push('*Alertas do mês*','🔴 '+d.novas+' ficaram positivas (estavam em 0)','🟠 '+d.subiu+' subiram muito','🟢 '+d.neg+' voltaram a 0','');
-  if(d.eqs.length){ L.push('*IPO por equipe*'); d.eqs.forEach(x=>L.push('Equipe '+x.e+': '+f1(x.m.ipo)+'%'+(d.tem&&x.mp&&x.mp.ipo!==null?' ('+dTxt(x.m.ipo,x.mp.ipo,'pp')+')':''))); L.push(''); }
-  if(d.top.length){ L.push('*Maiores contagens*'); d.top.forEach((x,k)=>L.push((k+1)+'. Ovitrampa '+x.id+(x.area?' ('+titulo(x.area)+')':'')+': '+fInt(x.v)+' ovos')); L.push(''); }
-  d.ex.forEach(x=>L.push('*'+(x.cat==='pe'?'Ovitrampas em pontos estratégicos':'Ovitrampas em aldeia')+':* IPO '+f1(x.ipo)+'% ('+x.pos+' de '+x.n+')'+(x.ipoAnt!==null?' ('+dTxt(x.ipo,x.ipoAnt,'pp')+v+')':'')));
+  const ant=d.antC, L=[];
+  const cmp=(a,b,un,tipo,fmt)=>d.tem&&b!==null&&b!==undefined?' (em '+ant+' era '+fmt(b)+'; '+zapMuda(a,b,un,tipo)+')':'';
+  L.push('*PANORAMA DAS OVITRAMPAS - '+d.mes.toUpperCase()+'*','Ponta Porã/MS - Vigilância em Saúde / Endemias','');
+  L.push('Ovitrampas são armadilhas que mostram onde o mosquito da dengue (Aedes aegypti) está colocando ovos. Quanto mais ovos, maior o risco naquele local.','');
+  L.push('*Resumo do mês*');
+  L.push('- *Armadilhas com ovos (IPO):* '+f1(d.m.ipo)+'%. Foram '+d.m.pos+' armadilhas com ovos, de '+d.m.n+' que tiveram contagem'+cmp(d.m.ipo,d.tem?d.mp.ipo:null,'', 'pp',x=>f1(x)+'%')+'.');
+  L.push('- *Total de ovos contados:* '+fInt(d.m.ov)+cmp(d.m.ov,d.tem?d.mp.ov:null,'ovos','n',fInt)+'.');
+  L.push('- *Média de ovos nas armadilhas que têm ovos (IDO):* '+f1(d.m.ido)+cmp(d.m.ido,d.tem?d.mp.ido:null,'ovos','x',f1)+'.','');
+  if(d.tem){ L.push('*O que mudou desde '+ant+'*','- '+d.novas+' armadilhas que estavam sem ovos passaram a ter ovos.','- '+d.subiu+' armadilhas tiveram aumento forte de ovos.','- '+d.neg+' armadilhas que tinham ovos ficaram sem ovos.',''); }
+  if(d.eqs.length){ L.push('*Armadilhas com ovos por equipe*'); d.eqs.forEach(x=>L.push('- Equipe '+x.e+': '+f1(x.m.ipo)+'%'+(d.tem&&x.mp&&x.mp.ipo!==null?' ('+zapMuda(x.m.ipo,x.mp.ipo,'','pp')+' desde '+ant+')':''))); L.push(''); }
+  if(d.top.length){ L.push('*As '+d.top.length+' ovitrampas com mais ovos*'); d.top.forEach((x,k)=>L.push((k+1)+'. Ovitrampa '+x.id+(x.rua?' - '+x.rua:'')+': '+fInt(x.v)+' ovos')); L.push(''); }
+  d.ex.forEach(x=>L.push('*'+(x.cat==='pe'?'Ovitrampas em pontos estratégicos (borracharias e outros)':'Ovitrampas em aldeia')+':* '+f1(x.ipo)+'% com ovos ('+x.pos+' de '+x.n+')'+(x.ipoAnt!==null?' ('+zapMuda(x.ipo,x.ipoAnt,'','pp')+' desde '+ant+')':'')+'.'));
   if(d.ex.length) L.push('');
-  L.push('_Vigilância em Saúde / Endemias · Prefeitura de Ponta Porã_');
+  L.push('*Como ajudar:* elimine água parada em pratos de plantas, pneus, calhas, baldes e garrafas. Não deixe o mosquito nascer.','');
+  L.push('_Vigilância em Saúde / Endemias - Prefeitura de Ponta Porã_');
   return L.join('\n');
 }
 async function zapImagem(d){
@@ -449,16 +454,16 @@ async function zapImagem(d){
   cds.forEach(([t,v,dl,cor,dc],k)=>{ const x=60+k*(cw+20); card(x,676,cw,180,cor); T(t,x+24,726,'800 24px '+BR,'#b8c7de'); let fs=60; c.font='900 '+fs+'px '+UD; while(c.measureText(v).width>cw-44&&fs>30){ fs-=2; c.font='900 '+fs+'px '+UD; } T(v,x+24,792,'900 '+fs+'px '+UD,cor); if(dl) T(dl,x+24,838,'800 24px '+BR,dc); });
   T('Ovitrampas por faixa de ovos',60,905,'700 30px '+UD,'#fff');
   const mxb=Math.max(1,...d.bandas);
-  FAIXAS.forEach(([t,col],k)=>{ const y=935+k*46; desenhaFaixa(c,k,92,y+17,34,col); T(t,130,y+27,'700 27px '+BR,'#fff'); const bw=Math.max(8,d.bandas[k]/mxb*440); rr(370,y+2,bw,30,15); c.fillStyle=col; c.fill(); c.strokeStyle='#111'; c.lineWidth=2; c.stroke(); T(String(d.bandas[k]),370+bw+16,y+28,'900 28px '+UD,'#fff'); });
-  let y=1250;
+  FAIXAS.forEach(([t,col],k)=>{ const y=935+k*38; desenhaFaixa(c,k,92,y+17,34,col); T(t,130,y+27,'700 27px '+BR,'#fff'); const bw=Math.max(8,d.bandas[k]/mxb*440); rr(370,y+2,bw,30,15); c.fillStyle=col; c.fill(); c.strokeStyle='#111'; c.lineWidth=2; c.stroke(); T(String(d.bandas[k]),370+bw+16,y+28,'900 28px '+UD,'#fff'); });
+  let y=1215;
   if(d.tem){ T('Alertas do mês',60,y,'700 30px '+UD,'#fff'); y+=26;
-    [[d.novas,'ficaram positivas','#ff8fa3'],[d.subiu,'subiram muito','#ffb454'],[d.neg,'voltaram a 0','#3ddc84']].forEach(([n,t,cor],k)=>{ const x=60+k*(cw+20); card(x,y,cw,112,cor); T(String(n),x+24,y+62,'900 50px '+UD,cor); T(t,x+24,y+94,'800 23px '+BR,'#d5e0f0'); }); y+=112+50; }
+    [[d.novas,'ficaram positivas','#ff8fa3'],[d.subiu,'subiram muito','#ffb454'],[d.neg,'voltaram a 0','#3ddc84']].forEach(([n,t,cor],k)=>{ const x=60+k*(cw+20); card(x,y,cw,100,cor); T(String(n),x+24,y+56,'900 46px '+UD,cor); T(t,x+24,y+86,'800 23px '+BR,'#d5e0f0'); }); y+=100+46; }
   if(d.eqs.length){ T('IPO por equipe',60,y,'700 30px '+UD,'#fff'); y+=14;
-    d.eqs.forEach((x,k)=>{ const yy=y+k*44; T('Equipe '+x.e,60,yy+30,'800 27px '+BR,'#fff'); const bw=Math.max(8,x.m.ipo/100*400); rr(250,yy+6,bw,30,15); c.fillStyle=COR_EQ[x.e]||'#4cc3ff'; c.fill(); T(f1(x.m.ipo)+'%',250+bw+14,yy+32,'900 26px '+UD,'#fff'); if(d.tem&&x.mp&&x.mp.ipo!==null) T(dTxt(x.m.ipo,x.mp.ipo,'pp'),W-60,yy+32,'800 24px '+BR,dCor(x.m.ipo,x.mp.ipo),'right'); }); y+=d.eqs.length*44+26; }
-  if(d.top.length){ T('Maiores contagens',60,y,'700 30px '+UD,'#fff'); y+=12;
-    d.top.forEach((x,k)=>{ const s=(k+1)+'. Ovitrampa '+x.id+(x.area?' · '+titulo(x.area):''); let fs=26; c.font='800 '+fs+'px '+BR; while(c.measureText(s).width>700&&fs>18){ fs--; c.font='800 '+fs+'px '+BR; } T(s,60,y+34+k*36,'800 '+fs+'px '+BR,'#d5e0f0'); T(fInt(x.v)+' ovos',W-60,y+34+k*36,'900 26px '+UD,'#ffd23f','right'); }); y+=3*36+30; }
-  d.ex.forEach(x=>{ T((x.cat==='pe'?'Pontos estratégicos':'Aldeia')+' · IPO '+f1(x.ipo)+'% ('+x.pos+' de '+x.n+')',60,y+14,'800 25px '+BR,'#9fe0ff'); y+=40; });
-  T('Prefeitura de Ponta Porã · Vigilância em Saúde / Endemias',W/2,H-44,'600 22px '+BR,'#7f93b3','center');
+    d.eqs.forEach((x,k)=>{ const yy=y+k*40; T('Equipe '+x.e,60,yy+30,'800 27px '+BR,'#fff'); const bw=Math.max(8,x.m.ipo/100*400); rr(250,yy+6,bw,30,15); c.fillStyle=COR_EQ[x.e]||'#4cc3ff'; c.fill(); T(f1(x.m.ipo)+'%',250+bw+14,yy+32,'900 26px '+UD,'#fff'); if(d.tem&&x.mp&&x.mp.ipo!==null) T(dTxt(x.m.ipo,x.mp.ipo,'pp'),W-60,yy+32,'800 24px '+BR,dCor(x.m.ipo,x.mp.ipo),'right'); }); y+=d.eqs.length*40+50; }
+  if(d.top.length){ T('Ovitrampas com mais ovos',60,y,'700 30px '+UD,'#fff'); y+=12;
+    d.top.forEach((x,k)=>{ const s=(k+1)+'. Ovitrampa '+x.id+(x.rua?' · '+x.rua:''); let fs=26; c.font='800 '+fs+'px '+BR; while(c.measureText(s).width>700&&fs>18){ fs--; c.font='800 '+fs+'px '+BR; } T(s,60,y+34+k*34,'800 '+fs+'px '+BR,'#d5e0f0'); T(fInt(x.v)+' ovos',W-60,y+34+k*34,'900 26px '+UD,'#ffd23f','right'); }); y+=d.top.length*34+30; }
+  d.ex.forEach(x=>{ T((x.cat==='pe'?'Pontos estratégicos':'Aldeia')+' · IPO '+f1(x.ipo)+'% ('+x.pos+' de '+x.n+')',60,y+14,'800 24px '+BR,'#9fe0ff'); y+=34; });
+  T('Prefeitura de Ponta Porã · Vigilância em Saúde / Endemias',W/2,H-20,'600 21px '+BR,'#7f93b3','center');
   return cv;
 }
 function zapRender(){
