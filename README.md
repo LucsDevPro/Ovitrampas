@@ -1,3 +1,5 @@
+> **Comece por `GUIA.md`** (mapa de arquivos e regras). Este README é o detalhe de cada recurso.
+
 # Sistema de ovitrampas — Prefeitura de Ponta Porã/MS
 
 Dois sistemas que leem os mesmos arquivos de dados:
@@ -103,14 +105,14 @@ A rua da planilha vem digitada à mão (sem acento, "Rua:" colado, erros como "T
 - Cada nome padronizado fica no registro de correções (`correcoes`, campo `rua`).
 
 ## Visual (cores e formas)
-- Faixas de ovos: cores fortes em `assets/js/boot.js` (`COR_FAIXA`, `FORMA_FAIXA`; as mesmas em `01-dados.js`, `gestao.js` e `tokens.css`). Cada faixa tem também uma forma (círculo, triângulo, losango, quadrado, estrela, triângulo invertido), para impressão em preto e branco e daltonismo.
-- Painel de gestão: cartões separados para malha, pontos estratégicos (PE) e aldeia (AI), cada um com seu IPO (`resumoAParte` em `gestao.js`).
+- Faixas de ovos: cores fortes em `assets/js/boot.js` (`COR_FAIXA`, `FORMA_FAIXA`; as mesmas em `01-dados.js`, `assets/js/gestao/` e `tokens.css`). Cada faixa tem também uma forma (círculo, triângulo, losango, quadrado, estrela, triângulo invertido), para impressão em preto e branco e daltonismo.
+- Painel de gestão: cartões separados para malha, pontos estratégicos (PE) e aldeia (AI), cada um com seu IPO (`resumoAParte` em `assets/js/gestao/`).
 - Mapa de campo: dicas de cada seção ficam atrás do botão "?" (código no fim de `14-inicio.js`).
 - Relatório: coluna "Última instalação" mais larga e com letra maior (`06-print.js`, objeto `col`).
 - Depois de qualquer mudança de código: `python tools/versao.py`.
 
 ## Alertas e histórico (painel de gestão)
-- Aba "Resumo atual": bloco "Alertas" compara o último mês com o anterior: ficaram positivas (0 → mais de 0), subiram muito (+30 ovos e 1,5× ou mais; ajuste em `LIM_SUBIDA`, `gestao.js`) e negativaram.
+- Aba "Resumo atual": bloco "Alertas" compara o último mês com o anterior: ficaram positivas (0 → mais de 0), subiram muito (+30 ovos e 1,5× ou mais; ajuste em `LIM_SUBIDA`, `assets/js/gestao/`) e negativaram.
 - Aba "Histórico por ovitrampa": escolha o número (ou toque no ID nos alertas) para ver gráfico do ano, média histórica, meses positivos e últimas contagens semanais; abaixo, tabela com todas as ovitrampas.
 
 ## Ajustes de novembro
@@ -133,7 +135,7 @@ Unbounded (títulos e números do painel) e Bricolage Grotesque (texto), ambas l
 Cada tabela e cartão do painel de gestão tem um ícone de impressora no título; ele imprime só aquela parte, com cabeçalho (logo, título e data). Na aba "Histórico por ovitrampa", o botão "Imprimir esta ovitrampa" gera a folha com o gráfico e os números dela para entregar ao agente da área. Código: `imprimeAlvo` em `assets/js/gestao.js`.
 
 ## Mapa de calor
-Marque "Mapa de calor" acima do mapa (resumo e mapa do mês) para ver a concentração de ovos: azul/verde = pouco, amarelo/laranja = médio, vermelho = muito (100 ovos ou mais pesa o máximo; 0 ovos não esquenta). Biblioteca: `assets/vendor/leaflet-heat.js`; código: `calorCamada` em `gestao.js`.
+Marque "Mapa de calor" acima do mapa (resumo e mapa do mês) para ver a concentração de ovos: azul/verde = pouco, amarelo/laranja = médio, vermelho = muito (100 ovos ou mais pesa o máximo; 0 ovos não esquenta). Biblioteca: `assets/vendor/leaflet-heat.js`; código: `calorCamada` em `assets/js/gestao/`.
 
 ## Resumo para WhatsApp
 Aba "Resumo para WhatsApp" do painel de gestão: escolha o mês e copie o texto pronto (IPO, ovos, positivas, IDO, alertas, equipes e maiores contagens, sempre comparando com o mês anterior) ou baixe/compartilhe a imagem 1080×1920 para o status. Código: `zapDados`, `zapTexto`, `zapImagem` e `zapRender` em `assets/js/gestao.js`.
