@@ -241,10 +241,10 @@ function spark(vals,w,h){
 const mixC=(a,b,t)=>{ const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)); const x=p(a),y=p(b); return '#'+x.map((v,i)=>Math.round(v+(y[i]-v)*t).toString(16).padStart(2,'0')).join(''); };
 const escala=t=>t<=.5?mixC('#EAF3FB','#FFD166',t*2):mixC('#FFD166','#E5383B',(t-.5)*2);
 
-/* ---- aba Análise mensal ---- */
+/* ---- aba Análise anual ---- */
 function mensalRender(){
   const box=$('tab-mensal');
-  if(!temSerie()){ box.innerHTML='<div class="cx"><h2>Análise mensal</h2><p>Ainda não há série mensal publicada. No mapa de campo: <b>Dados e conferência → Importar planilha ou backup</b> (planilha “contaovos-contagens”), depois <b>Publicar dados para a gestão</b> e envie o dados.json ao GitHub.</p></div>'; return; }
+  if(!temSerie()){ box.innerHTML='<div class="cx"><h2>Análise anual</h2><p>Ainda não há série mensal publicada. No mapa de campo: <b>Dados e conferência → Importar planilha ou backup</b> (planilha “contaovos-contagens”), depois <b>Publicar dados para a gestão</b> e envie o dados.json ao GitHub.</p></div>'; return; }
   const l=ptsFil(), n=MESES.length, M=MESES.map((_,i)=>metMes(l,i)), a=M[mesSel], ant=mesSel>0?M[mesSel-1]:null;
   const chipsM=`<div class="filtros noprint">${MESES.map((m,i)=>`<button class="chip ${i===mesSel?'on':''}" data-m="${i}">${rotMes(m)}</button>`).join(' ')}<button class="chip" id="btnPlay" type="button">${timer?'⏸ Parar':'▶ Animar'}</button></div>`;
   const kp=[[fPct(a.ipo),'IPO',ant?fDelta(a.ipo,ant.ipo,true):''],[fOv(a.ido),'IDO (ovos por positiva)',ant?fDelta(a.ido,ant.ido):''],[fOv(a.idv),'IDV (ovos por ovitrampa)',ant?fDelta(a.idv,ant.idv):''],[a.pos+' de '+a.n,'Positivas / ovitrampas',''],[fOv(a.ov),'Total de ovos',ant?fDelta(a.ov,ant.ov):'']];
@@ -316,7 +316,7 @@ function atualizaMes(refazTudo){ if(aba==='mensal'){ if(refazTudo){ mensalRender
 /* ---- aba Focos e alertas ---- */
 function focosRender(){
   const box=$('tab-focos');
-  if(!temSerie()){ box.innerHTML='<div class="cx"><h2>Focos e alertas</h2><p>Disponível quando a série mensal for publicada (veja a aba “Análise mensal”).</p></div>'; return; }
+  if(!temSerie()){ box.innerHTML='<div class="cx"><h2>Focos e alertas</h2><p>Disponível quando a série mensal for publicada (veja a aba “Análise anual”).</p></div>'; return; }
   const l=ptsFil(), u=MESES.length-1;
   const est=l.map(o=>{ const s=SERIE[o.id]||[], lei=s.filter(x=>x!==null&&x!==undefined).length, pos=s.filter(x=>x!==null&&x>0).length, tot=s.reduce((t,x)=>t+(x||0),0); let mx=-1,mi=-1; s.forEach((x,i)=>{ if(x!==null&&x>mx){ mx=x; mi=i; } }); return {o,s,lei,pos,tot,mx,mi}; }).filter(x=>x.lei);
   const pers=est.filter(x=>x.pos>=kFoco).sort((a,b)=>b.pos-a.pos||b.tot-a.tot);
