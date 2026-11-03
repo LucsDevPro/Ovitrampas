@@ -251,7 +251,7 @@ function renderImport(){
   if(p.tipo==='backup'){ const n=Object.keys(p.store.pts||{}).length, c=Object.keys(p.store.ciclo||{}).length;
     box.innerHTML=`<p class="ok">Backup reconhecido.</p><p>${n} ovitrampa(s) com alteração, ${c} com registro de campo${p.store.agentes?', lista de agentes':''}. Aplicar <b>substitui</b> os dados guardados neste aparelho por este backup.</p>`; $('impAplicar').disabled=false; return; }
   if(p.tipo==='agentes'){
-    const eqs={}; p.rows.forEach(r=>{ const k=r[5]?'Equipe '+r[5]:'Sem equipe'; eqs[k]=(eqs[k]||0)+1; });
+    const eqs={}; p.rows.forEach(r=>{ const k=r[5]?'Equipe '+r[5]:'Zona rural'; eqs[k]=(eqs[k]||0)+1; });
     box.innerHTML=`<p class="ok">Lista de agentes reconhecida: ${p.rows.length} linhas.</p><p>${Object.keys(eqs).sort().map(k=>`${k}: ${eqs[k]}`).join(' · ')}</p>`
       +(p.extra.length?`<p class="aviso">${p.extra.length} faixa(s) de ovitrampas sem agente foram mantidas como “sem agente”: ${p.extra.map(r=>r[3]+'–'+r[4]).join(', ')}.</p>`:'')
       +(p.ign.length?`<p class="aviso">Ignoradas: ${esc(p.ign.slice(0,6).join('; '))}</p>`:'');

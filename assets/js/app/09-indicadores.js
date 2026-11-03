@@ -63,7 +63,7 @@ const fPct=x=>x===null||x===undefined?'—':x.toFixed(1).replace('.',',')+'%';
 const fNum=x=>x===null||x===undefined?'—':String(Math.round(x*10)/10).replace('.',',');
 function equipesDados(){
   const chaves=[...new Set(AGS.map(a=>a.equipe||0))].sort((a,b)=>(a||99)-(b||99));
-  return chaves.map(k=>{ const ags=AGS.filter(a=>(a.equipe||0)===k), lista=ags.flatMap(a=>a.lista); return {eq:k,nome:k?'Equipe '+k:'Sem equipe',ags,lista,ind:indic(lista)}; });
+  return chaves.map(k=>{ const ags=AGS.filter(a=>(a.equipe||0)===k), lista=ags.flatMap(a=>a.lista); return {eq:k,nome:k?'Equipe '+k:'Zona rural',ags,lista,ind:indic(lista)}; });
 }
 const MES_LONGO_IND=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 function mesIndicadores(){ const ms=(PUB.ano&&PUB.ano.meses)||[]; if(!ms.length) return ''; const m=ms[ms.length-1]; return MES_LONGO_IND[+m.slice(5,7)-1]+' de '+m.slice(0,4); }

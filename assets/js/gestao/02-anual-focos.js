@@ -78,7 +78,7 @@ function insights(M){
 function heatHtml(){
   const linhas=[]; const eqs=[...new Set(agFil().map(a=>a.equipe||0))].sort((a,b)=>(a||99)-(b||99));
   const val=(lst,i)=>{ const m=metMes(lst,i); return metHeat==='ipo'?m.ipo:metHeat==='idv'?m.idv:(m.n?m.ov:null); };
-  eqs.forEach(k=>{ const ags=agFil().filter(a=>(a.equipe||0)===k); linhas.push({tit:true,nome:k?'Equipe '+k:'Sem equipe',cor:k?COR_EQ[k]:'#587079',v:MESES.map((_,i)=>val(ags.flatMap(a=>a.lista),i))});
+  eqs.forEach(k=>{ const ags=agFil().filter(a=>(a.equipe||0)===k); linhas.push({tit:true,nome:k?'Equipe '+k:'Zona rural',cor:k?COR_EQ[k]:'#587079',v:MESES.map((_,i)=>val(ags.flatMap(a=>a.lista),i))});
     ags.slice().sort((a,b)=>a.zona-b.zona).forEach(a=>linhas.push({nome:`${a.zona} · ${nomeAg(a)} · ${a.area||'—'}`,v:MESES.map((_,i)=>val(a.lista,i))})); });
   const mxA=Math.max(1e-9,...linhas.filter(x=>!x.tit).flatMap(x=>x.v.filter(y=>y!==null))), mxE=Math.max(1e-9,...linhas.filter(x=>x.tit).flatMap(x=>x.v.filter(y=>y!==null)));
   const fmt=v=>v===null?'—':metHeat==='ipo'?v.toFixed(0)+'%':Math.round(v).toLocaleString('pt-BR');

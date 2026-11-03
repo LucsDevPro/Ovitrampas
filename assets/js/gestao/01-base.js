@@ -26,14 +26,14 @@ function prepara(){
   POR_ID={}; AGS.forEach(a=>a.lista.forEach(o=>POR_ID[o.id]=a));
   preparaSerie();
 }
-const nomeAg=a=>a.nome||('Zona '+a.zona), eqTxt=a=>a.equipe?'Equipe '+a.equipe:'Sem equipe';
+const nomeAg=a=>a.nome||('Zona '+a.zona), eqTxt=a=>a.equipe?'Equipe '+a.equipe:'Zona rural';
 function indic(l){ const r={n:l.length,com:0,pos:0,ovos:0,b:[0,0,0,0,0,0]}; l.forEach(o=>{ r.b[banda(o.ovos)]++; if(o.ovos!==null&&o.ovos!==undefined){ r.com++; r.ovos+=o.ovos; if(o.ovos>0) r.pos++; } }); r.ipo=r.com?100*r.pos/r.com:null; r.imo=r.pos?r.ovos/r.pos:null; return r; }
 const agFil=()=>AGS.filter(a=>filtro===null||(filtro===0?!a.equipe:a.equipe===filtro));
 const ptsFil=()=>agFil().flatMap(a=>a.lista);
 
 function chips(){
   const eqs=[...new Set(AGS.map(a=>a.equipe).filter(Boolean))].sort();
-  $('chips').innerHTML=[`<button class="chip ${filtro===null?'on':''}" data-f="">Todas</button>`].concat(eqs.map(e=>`<button class="chip ${filtro===e?'on':''}" data-f="${e}" style="${filtro===e?'':'border-color:'+COR_EQ[e]}">Equipe ${e}</button>`)).concat(AGS.some(a=>!a.equipe)?[`<button class="chip ${filtro===0?'on':''}" data-f="0">Sem equipe</button>`]:[]).join(' ');
+  $('chips').innerHTML=[`<button class="chip ${filtro===null?'on':''}" data-f="">Todas</button>`].concat(eqs.map(e=>`<button class="chip ${filtro===e?'on':''}" data-f="${e}" style="${filtro===e?'':'border-color:'+COR_EQ[e]}">Equipe ${e}</button>`)).concat(AGS.some(a=>!a.equipe)?[`<button class="chip ${filtro===0?'on':''}" data-f="0">Zona rural</button>`]:[]).join(' ');
 }
 /* legenda de cada quadrado de indicador (aparece escrita no próprio quadrado) */
 function legKpi(t,a,ant){
@@ -82,7 +82,7 @@ function mapaRender(l){
 }
 function tabelaEquipes(){
   const chaves=[...new Set(AGS.map(a=>a.equipe||0))].sort((a,b)=>(a||99)-(b||99));
-  const linhas=chaves.map(k=>{ const ags=AGS.filter(a=>(a.equipe||0)===k), l=ags.flatMap(a=>a.lista), r=indic(l); return {k,ags,r,nome:k?'Equipe '+k:'Sem equipe'}; });
+  const linhas=chaves.map(k=>{ const ags=AGS.filter(a=>(a.equipe||0)===k), l=ags.flatMap(a=>a.lista), r=indic(l); return {k,ags,r,nome:k?'Equipe '+k:'Zona rural'}; });
   const g=indic(AGS.flatMap(a=>a.lista));
   $('eqTab').innerHTML=`<table><thead><tr><th>Equipe</th><th class="n">Agentes</th><th class="n">Ovitrampas</th><th class="n">Com contagem</th><th class="n">Positivas</th><th class="n">IPO</th><th class="n">Ovos</th><th class="n">IDO</th></tr></thead><tbody>${linhas.map(x=>`<tr><td><b style="color:${x.k?COR_EQ[x.k]:'#587079'}">● ${x.nome}</b></td><td class="n">${x.ags.length}</td><td class="n">${x.r.n}</td><td class="n">${x.r.com}</td><td class="n">${x.r.pos}</td><td class="n">${fPct(x.r.ipo)}</td><td class="n"><b>${x.r.ovos}</b></td><td class="n">${fNum(x.r.imo)}</td></tr>`).join('')}<tr style="background:#dce9f5;font-weight:800"><td>Total</td><td class="n">${AGS.length}</td><td class="n">${g.n}</td><td class="n">${g.com}</td><td class="n">${g.pos}</td><td class="n">${fPct(g.ipo)}</td><td class="n">${g.ovos}</td><td class="n">${fNum(g.imo)}</td></tr></tbody></table>`;
 }
@@ -112,7 +112,7 @@ function evolucao(l){
 function cardsEquipes(){
   const chaves=[...new Set(agFil().map(a=>a.equipe||0))].sort((a,b)=>(a||99)-(b||99));
   $('eqCards').innerHTML=chaves.map(k=>{ const ags=agFil().filter(a=>(a.equipe||0)===k), l=ags.flatMap(a=>a.lista), r=indic(l), cor=k?COR_EQ[k]:'#587079';
-    return `<div class="eqcard"><header style="background:${cor}"><span>${k?'Equipe '+k:'Sem equipe'}</span><span>${ags.length} agentes · ${r.n} ovitrampas</span></header><div class="corpo"><div class="mini">${[[fPct(r.ipo),'IPO'],[fNum(r.imo),'IDO'],[r.pos+'/'+r.com,'Positivas'],[r.ovos,'Total de ovos']].map(([v,t])=>`<div><b>${v}</b><span>${t}</span></div>`).join('')}</div>
+    return `<div class="eqcard"><header style="background:${cor}"><span>${k?'Equipe '+k:'Zona rural'}</span><span>${ags.length} agentes · ${r.n} ovitrampas</span></header><div class="corpo"><div class="mini">${[[fPct(r.ipo),'IPO'],[fNum(r.imo),'IDO'],[r.pos+'/'+r.com,'Positivas'],[r.ovos,'Total de ovos']].map(([v,t])=>`<div><b>${v}</b><span>${t}</span></div>`).join('')}</div>
     <div class="tw"><table><thead><tr><th class="n">Zona</th><th>Agente</th><th>Área</th><th class="n">Ovit.</th><th class="n">Posit.</th><th class="n">IPO</th><th class="n">Ovos</th><th class="n">IDO</th></tr></thead><tbody>${ags.slice().sort((a,b)=>a.zona-b.zona).map(a=>{ const i=indic(a.lista); return `<tr><td class="n">${a.zona}</td><td>${esc(nomeAg(a))}</td><td>${esc(a.area||'—')}</td><td class="n">${i.n}</td><td class="n">${i.pos}</td><td class="n">${fPct(i.ipo)}</td><td class="n"><b>${i.ovos}</b></td><td class="n">${fNum(i.imo)}</td></tr>`; }).join('')}</tbody></table></div></div></div>`; }).join('');
 }
 /* Contagens à parte: pontos estratégicos (PE), aldeia (AI) e outros. Não entram no IPO/IDO/IDV da malha. */

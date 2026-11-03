@@ -14,7 +14,7 @@ function montaAgentes(raw){
   });
 }
 montaAgentes(STORE.agentes||AGENTES_RAW);
-const nomeAg=a=>a.nome||('Agente '+a.zona), eqTxt=a=>a.equipe?'Equipe '+a.equipe:'Sem equipe';
+const nomeAg=a=>a.nome||('Agente '+a.zona), eqTxt=a=>a.equipe?'Equipe '+a.equipe:'Zona rural';
 const faixa=a=>a.fim>a.ini?`${a.ini}–${a.fim}`:String(a.ini);
 const rotAg=a=>`Zona ${a.zona} — Ovitrampas ${a.fim>a.ini?a.ini+' a '+a.fim:a.ini}`;
 const infoAg=a=>({agente:a.nome,area:a.area,zona:a.zona,equipe:a.equipe?'Equipe '+a.equipe:'',eqCor:a.equipe?COR_EQ[a.equipe]:null});
@@ -43,7 +43,7 @@ function renderAgentes(){
     l.forEach(a=>{
       const k=a.equipe||0;
       if(k!==atual){ atual=k; const g=l.filter(x=>(x.equipe||0)===k); const nO=g.reduce((t,x)=>t+x.lista.length,0);
-        h+=`<div class="agh" style="--c:${k?COR_EQ[k]:'#7a8b90'}"><span>${k?'Equipe '+k:'Sem equipe'} · ${g.length} agente${g.length>1?'s':''} · ${nO} ovitrampas</span>${k?`<button type="button" data-eq="${k}">ver equipe no mapa</button>`:''}</div>`; }
+        h+=`<div class="agh" style="--c:${k?COR_EQ[k]:'#7a8b90'}"><span>${k?'Equipe '+k:'Zona rural'} · ${g.length} agente${g.length>1?'s':''} · ${nO} ovitrampas</span>${k?`<button type="button" data-eq="${k}">ver equipe no mapa</button>`:''}</div>`; }
       h+=row(a);
     });
   } else h=l.map(row).join('');
