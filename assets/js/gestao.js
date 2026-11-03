@@ -129,7 +129,7 @@ function resumoAParte(){
   /* malha: último mês com contagem, mesma regra dos outros grupos */
   const l=ptsFil(); let ci=-1; l.forEach(o=>(SERIE[o.id]||[]).forEach((x,i)=>{ if(x!==null&&x!==undefined&&i>ci) ci=i; }));
   const cards=[];
-  if(ci>=0){ const ex=l.filter(o=>vMes(o,ci)!==null&&vMes(o,ci)!==undefined), tot=ex.reduce((t,o)=>t+vMes(o,ci),0), pos=ex.filter(o=>vMes(o,ci)>0).length; cards.push({tit:'Ovitrampas fixas de ovitrampas',cls:'malha',ci,n:ex.length,pos,tot,nota:'Base do IPO, IDO e IDV'}); }
+  if(ci>=0){ const ex=l.filter(o=>vMes(o,ci)!==null&&vMes(o,ci)!==undefined), tot=ex.reduce((t,o)=>t+vMes(o,ci),0), pos=ex.filter(o=>vMes(o,ci)>0).length; cards.push({tit:'Ovitrampas fixas',cls:'malha',ci,n:ex.length,pos,tot,nota:'Base do IPO, IDO e IDV'}); }
   G.forEach(g=>cards.push({tit:CATEGORIAS[g.cat],cls:g.cat,ci:g.ci,n:g.ex.length,pos:g.pos.length,tot:g.tot,nota:'Contagem à parte'}));
   el.innerHTML=cards.length?`<div class="gcards">${cards.map(g=>`<div class="gcard g-${g.cls}"><header><b>${g.tit}</b><small>${g.nota} · ${rotMes(MESES[g.ci])}</small></header><div class="gipo"><b>${fPct(g.n?100*g.pos/g.n:null)}</b><span>IPO</span></div><div class="gnum"><div><b>${g.n}</b><span>Ovitrampas</span></div><div><b>${g.pos}</b><span>Positivos</span></div><div><b>${fOv(g.pos?g.tot/g.pos:null)}</b><span>IDO</span></div><div><b>${fOv(g.tot)}</b><span>Ovos</span></div></div></div>`).join('')}</div><p class="nota">As ovitrampas de pontos estratégicos (borracharias etc.) e de aldeia têm contagem própria: não entram no IPO, IDO e IDV da malha.</p>`:'<p>Nenhuma ovitrampa nesta base.</p>';
 }
@@ -181,7 +181,7 @@ function mostraAba(a){
 function updUrl(){ try{ const u=new URL(location.href); filtro===null?u.searchParams.delete('equipe'):u.searchParams.set('equipe',filtro); aba==='resumo'?u.searchParams.delete('aba'):u.searchParams.set('aba',aba); (aba==='mensal'&&MESES.length)?u.searchParams.set('mes',MESES[mesSel]):u.searchParams.delete('mes'); history.replaceState(null,'',u); }catch(e){} }
 function imprime(tudo){
   const atual=aba;
-  const depois=()=>{ setTimeout(()=>{ mapa&&mapa.invalidateSize(); mapaM&&mapaM.invalidateSize(); setTimeout(()=>window.print(),500); },150); };
+  const depois=()=>{ setTimeout(()=>{ bs.forEach(([m,b])=>{ try{ m.invalidateSize({animate:false}); m.fitBounds(b,{animate:false}); }catch(e){} }); setTimeout(()=>window.print(),500); },150); };
   window.onafterprint=()=>{ window.onafterprint=null; mostraAba(atual); };
   if(tudo){ ['resumo','mensal','focos'].forEach(t=>$('tab-'+t).classList.remove('off')); aba='mensal'; mensalRender(); focosRender(); }
   depois();
@@ -390,8 +390,9 @@ function imprimeAlvo(el,titulo,sub){
   cab.innerHTML=`<img src="assets/img/logo-2x.png" alt="" height="48"><div><b>${esc(titulo)}</b><span>${esc(sub||'Painel de gestão — ovitrampas · Ponta Porã/MS')}</span></div><small>Impresso em ${new Date().toLocaleDateString('pt-BR')}</small>`;
   el.parentNode.insertBefore(cab,el);
   const ocultos=[]; let n=el; while(n&&n!==document.body){ [...n.parentNode.children].forEach(s=>{ if(s!==n&&s!==cab&&!(s.contains&&s.contains(cab))&&s.tagName!=='SCRIPT'&&s.tagName!=='STYLE'){ s.classList.add('pn-oc'); ocultos.push(s); } }); n=n.parentNode; }
-  el.classList.add('print-alvo');
-  const fim=()=>{ window.onafterprint=null; cab.remove(); el.classList.remove('print-alvo'); ocultos.forEach(s=>s.classList.remove('pn-oc')); mapa&&mapa.invalidateSize(); mapaM&&mapaM.invalidateSize(); };
+  const bs=[[typeof mapa!=='undefined'?mapa:null],[typeof mapaM!=='undefined'?mapaM:null]].map(([m])=>{ try{ return m?[m,m.getBounds()]:null; }catch(e){ return null; } }).filter(Boolean);
+  el.classList.add('print-alvo'); const pais=[]; for(let q=el.parentNode;q&&q!==document.body;q=q.parentNode){ q.classList.add('pn-blk'); pais.push(q); }
+  const fim=()=>{ window.onafterprint=null; cab.remove(); el.classList.remove('print-alvo'); ocultos.forEach(s=>s.classList.remove('pn-oc')); pais.forEach(q=>q.classList.remove('pn-blk')); bs.forEach(([m,b])=>{ try{ m.invalidateSize({animate:false}); m.fitBounds(b,{animate:false}); }catch(e){} }); };
   window.onafterprint=fim;
   setTimeout(()=>{ mapa&&mapa.invalidateSize(); mapaM&&mapaM.invalidateSize(); setTimeout(()=>{ window.print(); setTimeout(()=>{ if(el.classList.contains('print-alvo')&&!window.onafterprint) fim(); },1500); },300); },100);
 }
@@ -510,3 +511,8 @@ document.addEventListener('change',e=>{ if(e.target&&e.target.classList&&e.targe
 { const b=$('btnTema'), r=document.documentElement; let cl=false; try{ cl=localStorage.getItem('ovTema')==='claro'; }catch(e){}
   const ap=()=>{ if(cl) r.setAttribute('data-tema','claro'); else r.removeAttribute('data-tema'); if(b){ b.textContent=cl?'Tema escuro':'Tema claro'; b.setAttribute('aria-pressed',String(cl)); } };
   if(b) b.onclick=()=>{ cl=!cl; try{ localStorage.setItem('ovTema',cl?'claro':'escuro'); }catch(e){} ap(); }; ap(); }
+
+/* impressão do mapa: ajusta o tamanho ao da página e reenquadra (evita mapa cortado) */
+{ let salvo=[]; 
+  window.addEventListener('beforeprint',()=>{ salvo=[]; [['mapa',typeof mapa!=='undefined'?mapa:null],['mapaM',typeof mapaM!=='undefined'?mapaM:null]].forEach(([id,m])=>{ if(!m||!$(id)) return; try{ const b=m.getBounds(); salvo.push([m,b]); m.invalidateSize({animate:false}); m.fitBounds(b,{animate:false,padding:[4,4]}); }catch(e){} }); });
+  window.addEventListener('afterprint',()=>{ salvo.forEach(([m,b])=>{ try{ m.invalidateSize({animate:false}); m.fitBounds(b,{animate:false}); }catch(e){} }); salvo=[]; }); }

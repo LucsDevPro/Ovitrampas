@@ -282,3 +282,12 @@ html[data-tema=claro] .top button,html[data-tema=claro] .top .bt{color:#0a2145;b
 html[data-tema=claro] .top button:hover,html[data-tema=claro] .top .bt:hover{background:#e6f0fb}
 html[data-tema=claro] .top button.pri{background:var(--ac);border-color:var(--ac);color:#06241a}
 html[data-tema=claro] .top .anosel,html[data-tema=claro] .top label{color:#0a2145}
+@media print{
+  #mapa,#mapaM{width:100%!important;height:400px!important;max-width:100%;break-inside:avoid;page-break-inside:avoid;overflow:hidden;position:relative}
+  .print-alvo .leaflet-control-container .leaflet-top{display:none}
+  .print-alvo .cx,.print-alvo{overflow:visible!important;max-width:100%}
+}
+@media print{ .pn-blk{display:block!important;width:100%!important;max-width:none!important;grid-template-columns:1fr!important;margin:0!important;padding-left:0!important;padding-right:0!important} .pcab{display:flex!important;width:100%} }
+/* durante a impressão de uma parte, o mapa tem tamanho fixo que cabe na folha */
+.print-alvo #mapa,.print-alvo #mapaM{width:680px!important;max-width:100%!important;height:400px!important}
+@media print{ .print-alvo #mapa,.print-alvo #mapaM{width:680px!important} }
