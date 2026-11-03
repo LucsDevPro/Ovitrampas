@@ -8,10 +8,10 @@
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" href="assets/fonts/bricolage-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/unbounded-900.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/tokens.css?v=40987ec4">
-<link rel="stylesheet" href="assets/css/base.css?v=40987ec4">
-<link rel="stylesheet" href="assets/vendor/leaflet.css?v=40987ec4">
-<link rel="stylesheet" href="assets/css/app.css?v=40987ec4">
+<link rel="stylesheet" href="assets/css/tokens.css?v=ec53e94e">
+<link rel="stylesheet" href="assets/css/base.css?v=ec53e94e">
+<link rel="stylesheet" href="assets/vendor/leaflet.css?v=ec53e94e">
+<link rel="stylesheet" href="assets/css/app.css?v=ec53e94e">
 </head>
 <body data-pagina="app">
 <div id="splash" role="status"><div data-splash-txt>Carregando dados…</div></div>
@@ -20,12 +20,25 @@
   <aside id="side" aria-label="Controles do mapa">
     <header class="sidehead">
       <div class="brand">
-        <img class="brand-logo" src="assets/img/logo-2x.png?v=40987ec4" alt="Prefeitura Municipal de Ponta Porã" width="121" height="46">
+        <img class="brand-logo" src="assets/img/logo-2x.png?v=ec53e94e" alt="Prefeitura Municipal de Ponta Porã" width="121" height="46">
         <div class="brand-txt"><h1>Mapa de campo</h1><p>Controle de ovitrampas<br>Vigilância em Saúde / Endemias</p></div>
       </div>
       <button id="closeMenu" class="btn btn-sm primary" type="button"><i data-ico="map"></i>Ver mapa</button>
       <button id="hideMenu" class="btn btn-sm" type="button" title="Esconder o menu para ver o mapa maior"><i data-ico="panel"></i>Esconder</button>
     </header>
+
+    <details class="sec destaque" open>
+      <summary><i data-ico="chart"></i><span id="indTit">Indicadores</span></summary>
+      <div class="secbody">
+      <div id="kpiResumo" class="kpis"></div>
+      <div class="row">
+        <button class="btn primary" id="indAbrir" type="button">Abrir painel completo</button>
+        <button class="btn" id="resGer" type="button">Resumo gerencial (PDF)</button>
+      </div>
+      <div class="row"><a class="btn" id="abrirGestao" href="gestao.html" target="_blank" rel="noopener"><i data-ico="chart"></i>Abrir a página da gestão (online)</a></div>
+      <p class="hint">IPO = % de ovitrampas positivas (com ao menos 1 ovo) entre as que têm contagem. IDO = média de ovos por ovitrampa positiva (IDV = média de ovos por ovitrampa).</p>
+      </div>
+    </details>
 
     <details class="sec" open>
       <summary><i data-ico="users"></i><span>Agentes e equipes</span></summary>
@@ -152,18 +165,7 @@
       </div>
     </details>
 
-    <details class="sec destaque">
-      <summary><i data-ico="chart"></i><span id="indTit">Indicadores</span></summary>
-      <div class="secbody">
-      <div id="kpiResumo" class="kpis"></div>
-      <div class="row">
-        <button class="btn primary" id="indAbrir" type="button">Abrir painel completo</button>
-        <button class="btn" id="resGer" type="button">Resumo gerencial (PDF)</button>
-      </div>
-      <div class="row"><a class="btn" id="abrirGestao" href="gestao.html" target="_blank" rel="noopener"><i data-ico="chart"></i>Abrir a página da gestão (online)</a></div>
-      <p class="hint">IPO = % de ovitrampas positivas (com ao menos 1 ovo) entre as que têm contagem. IDO = média de ovos por ovitrampa positiva (IDV = média de ovos por ovitrampa).</p>
-      </div>
-    </details>
+    
 
     <details class="sec">
       <summary><i data-ico="printer"></i><span>Print e arquivos</span></summary>
@@ -385,8 +387,8 @@
 
 
 
-<script src="assets/vendor/leaflet.js?v=40987ec4"></script>
-<script src="assets/js/ui.js?v=40987ec4"></script>
-<script src="assets/js/boot.js?v=40987ec4"></script>
+<script src="assets/vendor/leaflet.js?v=ec53e94e"></script>
+<script src="assets/js/ui.js?v=ec53e94e"></script>
+<script src="assets/js/boot.js?v=ec53e94e"></script>
 </body>
 </html>

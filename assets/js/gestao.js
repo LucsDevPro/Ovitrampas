@@ -51,16 +51,17 @@ function kpis(l){ const r=indic(l);
   $('dist').innerHTML=FAIXAS.map(([t,c],i)=>`<div class="bandbar">${svgFaixa(i,c,18)}<i style="background:${c};width:${Math.max(2,Math.round(r.b[i]/mx*50))}%"></i><span><b>${r.b[i]}</b> · ${t}</span></div>`).join('');
 }
 let mostraZero=false, mostraCalor=false;
-const GRAD_CALOR={.12:'#1fb84a',.38:'#ffd500',.62:'#ff7a00',.85:'#e60026',1:'#9b0018'};
+/* cores iguais às da legenda de ovos: 1–20 verde · 21–50 amarelo · 51–100 laranja · 101+ vermelho (intensidade = ovos/120) */
+const GRAD_CALOR={.01:COR_FAIXA[1],.16:COR_FAIXA[1],.17:COR_FAIXA[2],.40:COR_FAIXA[2],.41:COR_FAIXA[3],.82:COR_FAIXA[3],.84:COR_FAIXA[4],1:COR_FAIXA[4]};
 /* mapa de calor: cada ovitrampa positiva esquenta o mapa (mais ovos = mais forte) e o calor se liga até a ovitrampa positiva mais próxima,
    para formar manchas contínuas. 0 ovos não esquenta. */
 function calorCamada(pts){
-  const pos=pts.filter(p=>p[2]>0).map(p=>({la:p[0],lo:p[1],i:0.3+0.7*Math.min(1,p[2]/100)}));
+  const pos=pts.filter(p=>p[2]>0).map(p=>({la:p[0],lo:p[1],i:Math.min(1,Math.max(.02,p[2]/120))}));
   const kx=Math.cos(-22.5*Math.PI/180), m=(a,b)=>Math.hypot((a.la-b.la)*111320,(a.lo-b.lo)*111320*kx), saida=pos.map(p=>[p.la,p.lo,p.i]);
   pos.forEach((p,k)=>{ let bi=-1,bd=Infinity; pos.forEach((q,j)=>{ if(j===k) return; const d=m(p,q); if(d<bd){ bd=d; bi=j; } });
     if(bi<0||bd>700||bd<25) return; const q=pos[bi], n=Math.floor(bd/25);
-    for(let s=1;s<n;s++){ const f=s/n; saida.push([p.la+(q.la-p.la)*f,p.lo+(q.lo-p.lo)*f,(p.i+(q.i-p.i)*f)*.85]); } });
-  return L.heatLayer(saida,{radius:30,blur:20,maxZoom:18,max:.75,minOpacity:.55,gradient:GRAD_CALOR});
+    for(let s=1;s<n;s++){ const f=s/n; saida.push([p.la+(q.la-p.la)*f,p.lo+(q.lo-p.lo)*f,p.i+(q.i-p.i)*f]); } });
+  return L.heatLayer(saida,{radius:26,blur:18,maxZoom:18,max:1,minOpacity:.3,gradient:GRAD_CALOR});
 }
 function mapaRender(l){
   if(!mapa){
@@ -128,7 +129,7 @@ function resumoAParte(){
   /* malha: último mês com contagem, mesma regra dos outros grupos */
   const l=ptsFil(); let ci=-1; l.forEach(o=>(SERIE[o.id]||[]).forEach((x,i)=>{ if(x!==null&&x!==undefined&&i>ci) ci=i; }));
   const cards=[];
-  if(ci>=0){ const ex=l.filter(o=>vMes(o,ci)!==null&&vMes(o,ci)!==undefined), tot=ex.reduce((t,o)=>t+vMes(o,ci),0), pos=ex.filter(o=>vMes(o,ci)>0).length; cards.push({tit:'Malha de ovitrampas',cls:'malha',ci,n:ex.length,pos,tot,nota:'Base do IPO, IDO e IDV'}); }
+  if(ci>=0){ const ex=l.filter(o=>vMes(o,ci)!==null&&vMes(o,ci)!==undefined), tot=ex.reduce((t,o)=>t+vMes(o,ci),0), pos=ex.filter(o=>vMes(o,ci)>0).length; cards.push({tit:'Ovitrampas fixas de ovitrampas',cls:'malha',ci,n:ex.length,pos,tot,nota:'Base do IPO, IDO e IDV'}); }
   G.forEach(g=>cards.push({tit:CATEGORIAS[g.cat],cls:g.cat,ci:g.ci,n:g.ex.length,pos:g.pos.length,tot:g.tot,nota:'Contagem à parte'}));
   el.innerHTML=cards.length?`<div class="gcards">${cards.map(g=>`<div class="gcard g-${g.cls}"><header><b>${g.tit}</b><small>${g.nota} · ${rotMes(MESES[g.ci])}</small></header><div class="gipo"><b>${fPct(g.n?100*g.pos/g.n:null)}</b><span>IPO</span></div><div class="gnum"><div><b>${g.n}</b><span>Ovitrampas</span></div><div><b>${g.pos}</b><span>Positivos</span></div><div><b>${fOv(g.pos?g.tot/g.pos:null)}</b><span>IDO</span></div><div><b>${fOv(g.tot)}</b><span>Ovos</span></div></div></div>`).join('')}</div><p class="nota">As ovitrampas de pontos estratégicos (borracharias etc.) e de aldeia têm contagem própria: não entram no IPO, IDO e IDV da malha.</p>`:'<p>Nenhuma ovitrampa nesta base.</p>';
 }
@@ -336,7 +337,7 @@ function focosRender(){
     h+=`<section><h2>${CATEGORIAS[g.cat]} · ${rotMes(MESES[g.ci])}</h2><div class="cx"><p><b>${g.ex.length}</b> ovitrampa(s) com contagem, <b>${g.pos.length}</b> positivo(s) (IPO ${fPct(100*g.pos.length/g.ex.length)}), IDO ${fOv(g.pos.length?g.tot/g.pos.length:null)}, ${fOv(g.tot)} ovos no total.</p>
     <div class="tw"><table><thead><tr><th>Mês</th><th class="n">Ovitrampas</th><th class="n">Positivos</th><th class="n">IPO</th><th class="n">Ovos</th></tr></thead><tbody>${meses.map(x=>`<tr><td>${rotMes(x.m)}</td><td class="n">${x.n}</td><td class="n">${x.p}</td><td class="n">${fPct(100*x.p/x.n)}</td><td class="n">${fOv(x.t)}</td></tr>`).join('')}</tbody></table></div>
     <div class="tw" style="max-height:340px"><table><thead><tr><th>ID ovitrampa</th><th class="n">Ovos</th><th>Local</th></tr></thead><tbody>${g.ex.slice().sort((a,b)=>b.serie[g.ci]-a.serie[g.ci]).map(e=>`<tr><td><b>${esc(e.id)}</b></td><td class="n">${fOv(e.serie[g.ci])}</td><td>${isFinite(e.lat)?`<a href="https://www.google.com/maps?q=${e.lat},${e.lon}" target="_blank" rel="noopener">mapa</a>`:'—'}</td></tr>`).join('')}</tbody></table></div>
-    <p class="nota">Contagem à parte: estas ovitrampas não entram nos indicadores da malha (1–242).</p></div></section>`;
+    <p class="nota">Contagem à parte: estas ovitrampas não entram nos indicadores das ovitrampas fixas (1–242).</p></div></section>`;
   });
   h+=`<section><h2>Qualidade dos dados</h2><div class="cx"><ul class="ins"><li><b>${novas.length}</b> ovitrampa(s) entraram só em ${rotMes(MESES[u])} e ainda não têm histórico${novas.length&&novas.every(x=>x.tot===0)?' (todas com 0 ovos)':''}.</li>${Object.keys(MULTI).map(m=>`<li>${nomeMes(m)}: ${MULTI[m]} leituras por ovitrampa. A análise usa a média; somar os registros dobraria os ovos e levaria o IPO acima de 100%.</li>`).join('')}${est.filter(x=>x.lei<MESES.length&&x.lei>1).length?`<li>${est.filter(x=>x.lei<MESES.length&&x.lei>1).length} ovitrampa(s) com leituras em apenas parte dos meses.</li>`:''}</ul></div></section>`;
   box.innerHTML=h;

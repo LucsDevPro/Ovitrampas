@@ -71,13 +71,13 @@ function ajustaEstilo(js,satelite){
     l.layout=l.layout||{}; l.paint=l.paint||{};
     if(/^poi|shield/i.test(l.id)){ l.layout.visibility='none'; return; }   /* tira comércio/ícones: sobra o nome das ruas */
     if(!l.layout['text-field']) return;
-    const rua=/highway-name/i.test(l.id), k=rua?1.7:1.3;
+    const rua=/highway-name/i.test(l.id), k=rua?2.3:1.7;
     l.layout['text-size']=escalaExpr(l.layout['text-size']!==undefined?l.layout['text-size']:16,k);
     l.layout['text-padding']=2;
-    if(rua) l.layout['symbol-spacing']=170;
-    l.paint['text-halo-width']=rua?2.6:2; l.paint['text-halo-blur']=0;
+    if(rua){ l.layout['symbol-spacing']=150; l.layout['text-letter-spacing']=.02; }
+    l.paint['text-halo-width']=rua?3.6:2.8; l.paint['text-halo-blur']=0;
     if(satelite){ l.paint['text-color']='#ffffff'; l.paint['text-halo-color']='rgba(0,0,0,.9)'; }
-    else{ l.paint['text-halo-color']='#ffffff'; if(rua) l.paint['text-color']='#101820'; }
+    else{ l.paint['text-halo-color']='#ffffff'; l.paint['text-color']=rua?'#000000':'#10212b'; }
   });
   if(satelite){
     js.sources.sat={type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:19};

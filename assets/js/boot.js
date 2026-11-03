@@ -4,7 +4,7 @@
    · service worker (funcionamento sem internet e atualização controlada). */
 (function(){
   'use strict';
-  const SCRIPT=document.currentScript, RAIZ=new URL('../../',SCRIPT.src).href, VERSAO='40987ec4';
+  const SCRIPT=document.currentScript, RAIZ=new URL('../../',SCRIPT.src).href, VERSAO='ec53e94e';
   window.SITE={raiz:RAIZ,versao:VERSAO};
 
   /* ---- hash FNV-1a (mesmo cálculo de tools/atualizar_dados.py) ---- */
