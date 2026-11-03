@@ -146,3 +146,4 @@ Saiu de todas as telas do painel de gestão (indicador, gráfico, tabelas, balõ
 - Agrupar por proximidade: usa as selecionadas (≥2) ou as visíveis; divide grupos grandes.
 - Menu Indicadores em destaque, com o mês no título.
 - Gestão: botão imprimir no canto superior direito de cada tabela; mapa de calor liga cada positiva à positiva mais próxima (até 700 m) com cores mais fortes; cabeçalho alinhado com a página; botão "Esconder equipes".
+- Texto institucional: "SEV - Setor de endemias e vetores". Fontes padronizadas (Unbounded nos títulos/números, Bricolage no texto) em index, gestão, relatórios e resumo gerencial (PDF, com cabeçalho escuro e cartões como a gestão). Chave "Adicionar grid" também em Agentes e equipes.

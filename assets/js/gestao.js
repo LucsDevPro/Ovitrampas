@@ -426,7 +426,7 @@ function zapMuda(a,b,un,tipo){ if(a===null||b===null||a===undefined||b===undefin
 function zapTexto(d){
   const ant=d.antC, L=[];
   const cmp=(a,b,un,tipo,fmt)=>d.tem&&b!==null&&b!==undefined?' (em '+ant+' era '+fmt(b)+'; '+zapMuda(a,b,un,tipo)+')':'';
-  L.push('*PANORAMA DAS OVITRAMPAS - '+d.mes.toUpperCase()+'*','Ponta Porã/MS - Vigilância em Saúde / Endemias','');
+  L.push('*PANORAMA DAS OVITRAMPAS - '+d.mes.toUpperCase()+'*','Ponta Porã/MS - SEV - Setor de endemias e vetores','');
   L.push('Ovitrampas são armadilhas que mostram onde o mosquito da dengue (Aedes aegypti) está colocando ovos. Quanto mais ovos, maior o risco naquele local.','');
   L.push('*Resumo do mês*');
   L.push('- *Armadilhas com ovos (IPO):* '+f1(d.m.ipo)+'%. Foram '+d.m.pos+' armadilhas com ovos, de '+d.m.n+' que tiveram contagem'+cmp(d.m.ipo,d.tem?d.mp.ipo:null,'', 'pp',x=>f1(x)+'%')+'.');
@@ -438,7 +438,7 @@ function zapTexto(d){
   d.ex.forEach(x=>L.push('*'+(x.cat==='pe'?'Ovitrampas em pontos estratégicos (borracharias e outros)':'Ovitrampas em aldeia')+':* '+f1(x.ipo)+'% com ovos ('+x.pos+' de '+x.n+')'+(x.ipoAnt!==null?' ('+zapMuda(x.ipo,x.ipoAnt,'','pp')+' desde '+ant+')':'')+'.'));
   if(d.ex.length) L.push('');
   L.push('*Como ajudar:* elimine água parada em pratos de plantas, pneus, calhas, baldes e garrafas. Não deixe o mosquito nascer.','');
-  L.push('_Vigilância em Saúde / Endemias - Prefeitura de Ponta Porã_');
+  L.push('_SEV - Setor de endemias e vetores - Prefeitura de Ponta Porã_');
   return L.join('\n');
 }
 async function zapImagem(d){
@@ -454,7 +454,7 @@ async function zapImagem(d){
   rr(60,56,330,124,24); c.fillStyle='#fff'; c.fill(); if(logo){ const h=96, w=h*logo.width/logo.height; c.drawImage(logo,60+(330-w)/2,56+14,w,h); }
   T('PANORAMA DAS OVITRAMPAS',60,250,'900 44px '+UD,'#fff');
   T(d.mes,60,306,'700 38px '+UD,'#4cc3ff');
-  T('Ponta Porã/MS · Vigilância em Saúde / Endemias',60,348,'400 26px '+BR,'#9fb3d1');
+  T('Ponta Porã/MS · SEV - Setor de endemias e vetores',60,348,'400 26px '+BR,'#9fb3d1');
   card(60,390,960,260,'#3ddc84');
   T('IPO · ovitrampas positivas',100,436,'800 28px '+BR,'#b8c7de');
   T(f1(d.m.ipo)+'%',96,578,'900 150px '+UD,'#3ddc84');
@@ -472,7 +472,7 @@ async function zapImagem(d){
   if(d.top.length){ T('Ovitrampas com mais ovos',60,y,'700 30px '+UD,'#fff'); y+=12;
     d.top.forEach((x,k)=>{ const s=(k+1)+'. Ovitrampa '+x.id+(x.rua?' · '+x.rua:''); let fs=26; c.font='800 '+fs+'px '+BR; while(c.measureText(s).width>700&&fs>18){ fs--; c.font='800 '+fs+'px '+BR; } T(s,60,y+34+k*34,'800 '+fs+'px '+BR,'#d5e0f0'); T(fInt(x.v)+' ovos',W-60,y+34+k*34,'900 26px '+UD,'#ffd23f','right'); }); y+=d.top.length*34+30; }
   d.ex.forEach(x=>{ T((x.cat==='pe'?'Pontos estratégicos':'Aldeia')+' · IPO '+f1(x.ipo)+'% ('+x.pos+' de '+x.n+')',60,y+14,'800 24px '+BR,'#9fe0ff'); y+=34; });
-  T('Prefeitura de Ponta Porã · Vigilância em Saúde / Endemias',W/2,H-20,'600 21px '+BR,'#7f93b3','center');
+  T('Prefeitura de Ponta Porã · SEV - Setor de endemias e vetores',W/2,H-20,'600 21px '+BR,'#7f93b3','center');
   return cv;
 }
 function zapRender(){

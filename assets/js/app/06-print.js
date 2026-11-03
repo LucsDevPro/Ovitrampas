@@ -5,13 +5,13 @@
    desenhados direto no canvas (sem foto ampliada). Cada folha leva cabeçalho + lista com endereço. */
 let shotCanvas=null, shotBlob=null, shotNome='ovitrampas', shotLista=[];
 const nomeArq = lista => 'ovitrampas_'+compress(lista.map(o=>o.id)).replace(/[^0-9a-z-]+/gi,'_').slice(0,60);
-const SUB='Ponta Porã/MS · Vigilância em Saúde / Endemias';
+const SUB='Ponta Porã/MS · SEV - Setor de endemias e vetores';
 const COR_PADRAO='#ffc21a';
 /* Logo da Prefeitura (embutido) e paleta do relatório extraída do logo */
 const LOGO=new Image(); LOGO.src=SITE.raiz+'assets/img/logo.png';
 const PAL={navy:'#002B68',blue:'#007ECA',green:'#00B93B',yellow:'#FFB900',red:'#FF1339'};
 const textoSobre=hex=>{ const n=parseInt(hex.slice(1),16), r=n>>16, g=(n>>8)&255, b=n&255; return (0.299*r+0.587*g+0.114*b)>150?'#111':'#fff'; };
-const FONTE='"Archivo","Segoe UI",system-ui,-apple-system,sans-serif';
+const FONTE='"Bricolage","Archivo","Segoe UI",system-ui,-apple-system,sans-serif';
 const pad=(n,l)=>String(n).padStart(l,'0');
 const toBlobP=(cv,tipo,q)=>new Promise(r=>cv.toBlob(r,tipo||'image/png',q));
 const tituloLista=lista=>{ const ids=lista.map(o=>o.id); const a=AGS.find(a=>a.lista.length===ids.length&&a.lista.every((o,i)=>o.id===ids[i])); return a?rotAg(a):'Relatório de campo — Ovitrampas '+compress(ids); };
@@ -26,7 +26,7 @@ $('pasta').addEventListener('click',async()=>{
   if(!window.showDirectoryPicker){ toast('Este navegador não deixa escolher pasta. Os arquivos vão para Downloads (Transferências). Use Chrome/Edge no computador para escolher.'); return; }
   try{ pastaDest=await window.showDirectoryPicker({mode:'readwrite'}); $('pastaNome').textContent='Salvando em: '+pastaDest.name; }catch(e){}
 });
-async function fontes(){ try{ await Promise.all(['400','600','800'].map(w=>document.fonts.load(`${w} 20px Archivo`))); }catch(e){} try{ if(!LOGO.complete) await LOGO.decode(); }catch(e){} }
+async function fontes(){ try{ await Promise.all(['400','600','800'].map(w=>document.fonts.load(`${w} 20px Bricolage`))); }catch(e){} try{ if(!LOGO.complete) await LOGO.decode(); }catch(e){} }
 
 /* nitidez automática (usado só no modo reserva, quando o mapa vetorial não está disponível) */
 function afinar(cv,a){

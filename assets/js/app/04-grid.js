@@ -93,6 +93,7 @@ function gradeTela(){
   gradeRotulos();
 }
 function gradeAtualiza(){
+  if($('gOn2')) $('gOn2').checked=$('gOn').checked&&$('gPrint').checked;
   $('gCentro').style.display=$('gModo').value==='centro'?'flex':'none';
   $('gManual').style.display=$('gModo').value==='manual'?'block':'none';
   const g=gradeCalcula();
@@ -147,3 +148,5 @@ function desenhaGrade(ctx,proj,k,satelite){
   }
   ctx.restore();
 }
+
+if($('gOn2')) $('gOn2').addEventListener('change',()=>{ $('gOn').checked=$('gOn2').checked; $('gPrint').checked=$('gOn2').checked; gradeAtualiza(); });
