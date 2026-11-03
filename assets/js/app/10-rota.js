@@ -36,11 +36,11 @@ function rotaOrdem(lista){
 }
 const rotaDist=ord=>ord.reduce((t,o,i)=>i?t+Math.hypot(o.gx-ord[i-1].gx,o.gy-ord[i-1].gy):0,0);
 /* link do Google Maps: destino = última; paradas = as anteriores; sem origem => parte da localização do celular */
-function urlRota(ordem){
+function urlRota(ordem,origem){
   const c=o=>o.latRaw+','+o.lonRaw;
-  if(ordem.length===1) return 'https://www.google.com/maps/search/?api=1&query='+c(ordem[0]);
+  if(ordem.length===1&&!origem) return 'https://www.google.com/maps/search/?api=1&query='+c(ordem[0]);
   const dest=ordem[ordem.length-1], via=ordem.slice(0,-1);
-  return 'https://www.google.com/maps/dir/?api=1&travelmode=driving&destination='+c(dest)+'&waypoints='+via.map(c).join('%7C');
+  return 'https://www.google.com/maps/dir/?api=1&travelmode=driving'+(origem?'&origin='+c(origem):'')+'&destination='+c(dest)+(via.length?'&waypoints='+via.map(c).join('%7C'):'');
 }
 function desenhaQR(ctx,texto,x,y,tam){
   if(typeof qrcode!=='function') return false;

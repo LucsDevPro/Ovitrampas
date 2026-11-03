@@ -4,16 +4,16 @@
    · data/manifest.json: sempre tenta a rede e cai no que está guardado.
    · data/*.json?v=…: versionados; uma vez guardados, não são baixados de novo.
    · Páginas: rede primeiro (para receber atualizações), guardado como reserva. */
-const VERSAO='63ead8d5';
+const VERSAO='40987ec4';
 const C_SISTEMA='ovi-sistema-'+VERSAO, C_DADOS='ovi-dados';
 const CRITICOS=[
 "./",
 "index.html",
 "gestao.html",
-"assets/css/app.css?v=63ead8d5",
-"assets/css/base.css?v=63ead8d5",
-"assets/css/gestao.css?v=63ead8d5",
-"assets/css/tokens.css?v=63ead8d5",
+"assets/css/app.css?v=40987ec4",
+"assets/css/base.css?v=40987ec4",
+"assets/css/gestao.css?v=40987ec4",
+"assets/css/tokens.css?v=40987ec4",
 "assets/fonts/archivo-400.woff2",
 "assets/fonts/archivo-600.woff2",
 "assets/fonts/archivo-800.woff2",
@@ -26,38 +26,38 @@ const CRITICOS=[
 "assets/img/icone-192.png",
 "assets/img/logo-2x.png",
 "assets/img/logo.png",
-"assets/vendor/leaflet.js?v=63ead8d5",
-"assets/vendor/leaflet-heat.js?v=63ead8d5",
-"assets/vendor/leaflet.css?v=63ead8d5",
+"assets/vendor/leaflet.js?v=40987ec4",
+"assets/vendor/leaflet-heat.js?v=40987ec4",
+"assets/vendor/leaflet.css?v=40987ec4",
 "assets/vendor/images/layers.png",
 "assets/vendor/images/layers-2x.png",
 "assets/vendor/images/marker-icon.png",
-"assets/js/app/01-dados.js?v=63ead8d5",
-"assets/js/app/02-mapa.js?v=63ead8d5",
-"assets/js/app/03-agrupar-validar.js?v=63ead8d5",
-"assets/js/app/04-grid.js?v=63ead8d5",
-"assets/js/app/05-relatorio.js?v=63ead8d5",
-"assets/js/app/06-print.js?v=63ead8d5",
-"assets/js/app/07-agentes-lote.js?v=63ead8d5",
-"assets/js/app/08b-ruas.js?v=63ead8d5",
-"assets/js/app/08-importar.js?v=63ead8d5",
-"assets/js/app/09-indicadores.js?v=63ead8d5",
-"assets/js/app/10-rota.js?v=63ead8d5",
-"assets/js/app/11-grid-analise.js?v=63ead8d5",
-"assets/js/app/12-offline.js?v=63ead8d5",
-"assets/js/app/13-publicar.js?v=63ead8d5",
-"assets/js/app/14-inicio.js?v=63ead8d5",
-"assets/js/boot.js?v=63ead8d5",
-"assets/js/gestao.js?v=63ead8d5",
-"assets/js/ui.js?v=63ead8d5"
+"assets/js/app/01-dados.js?v=40987ec4",
+"assets/js/app/02-mapa.js?v=40987ec4",
+"assets/js/app/03-agrupar-validar.js?v=40987ec4",
+"assets/js/app/04-grid.js?v=40987ec4",
+"assets/js/app/05-relatorio.js?v=40987ec4",
+"assets/js/app/06-print.js?v=40987ec4",
+"assets/js/app/07-agentes-lote.js?v=40987ec4",
+"assets/js/app/08b-ruas.js?v=40987ec4",
+"assets/js/app/08-importar.js?v=40987ec4",
+"assets/js/app/09-indicadores.js?v=40987ec4",
+"assets/js/app/10-rota.js?v=40987ec4",
+"assets/js/app/11-grid-analise.js?v=40987ec4",
+"assets/js/app/12-offline.js?v=40987ec4",
+"assets/js/app/13-publicar.js?v=40987ec4",
+"assets/js/app/14-inicio.js?v=40987ec4",
+"assets/js/boot.js?v=40987ec4",
+"assets/js/gestao.js?v=40987ec4",
+"assets/js/ui.js?v=40987ec4"
 ];
 const PESADOS=[
-"assets/vendor/html2canvas.min.js?v=63ead8d5",
-"assets/vendor/jspdf.umd.min.js?v=63ead8d5",
-"assets/vendor/jszip.min.js?v=63ead8d5",
-"assets/vendor/maplibre-gl.css?v=63ead8d5",
-"assets/vendor/maplibre-gl.js?v=63ead8d5",
-"assets/vendor/qrcode.js?v=63ead8d5"
+"assets/vendor/html2canvas.min.js?v=40987ec4",
+"assets/vendor/jspdf.umd.min.js?v=40987ec4",
+"assets/vendor/jszip.min.js?v=40987ec4",
+"assets/vendor/maplibre-gl.css?v=40987ec4",
+"assets/vendor/maplibre-gl.js?v=40987ec4",
+"assets/vendor/qrcode.js?v=40987ec4"
 ];
 
 self.addEventListener('install',e=>{

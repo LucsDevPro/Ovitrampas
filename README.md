@@ -140,3 +140,9 @@ Aba "Resumo para WhatsApp" do painel de gestão: escolha o mês e copie o texto 
 
 ## Média histórica
 Saiu de todas as telas do painel de gestão (indicador, gráfico, tabelas, balões do mapa e histórico por ovitrampa), para não confundir quem não é da área. A coluna continua sendo lida da planilha e guardada nos dados (`base` em `data/2026.json`), caso precise voltar a usar.
+
+## Ajustes de novembro/2026
+- Organizar por: padrão "por zona". Buscar e selecionar: botão "Selecionar" em cada resultado e botão "Gerar mapa". Relatório com lista de endereços até 40 ovitrampas e QR de rota em trechos de 10.
+- Agrupar por proximidade: usa as selecionadas (≥2) ou as visíveis; divide grupos grandes.
+- Menu Indicadores em destaque, com o mês no título.
+- Gestão: botão imprimir no canto superior direito de cada tabela; mapa de calor liga cada positiva à positiva mais próxima (até 700 m) com cores mais fortes; cabeçalho alinhado com a página; botão "Esconder equipes".

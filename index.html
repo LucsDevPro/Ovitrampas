@@ -8,10 +8,10 @@
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" href="assets/fonts/bricolage-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/unbounded-900.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/tokens.css?v=63ead8d5">
-<link rel="stylesheet" href="assets/css/base.css?v=63ead8d5">
-<link rel="stylesheet" href="assets/vendor/leaflet.css?v=63ead8d5">
-<link rel="stylesheet" href="assets/css/app.css?v=63ead8d5">
+<link rel="stylesheet" href="assets/css/tokens.css?v=40987ec4">
+<link rel="stylesheet" href="assets/css/base.css?v=40987ec4">
+<link rel="stylesheet" href="assets/vendor/leaflet.css?v=40987ec4">
+<link rel="stylesheet" href="assets/css/app.css?v=40987ec4">
 </head>
 <body data-pagina="app">
 <div id="splash" role="status"><div data-splash-txt>Carregando dados…</div></div>
@@ -20,7 +20,7 @@
   <aside id="side" aria-label="Controles do mapa">
     <header class="sidehead">
       <div class="brand">
-        <img class="brand-logo" src="assets/img/logo-2x.png?v=63ead8d5" alt="Prefeitura Municipal de Ponta Porã" width="121" height="46">
+        <img class="brand-logo" src="assets/img/logo-2x.png?v=40987ec4" alt="Prefeitura Municipal de Ponta Porã" width="121" height="46">
         <div class="brand-txt"><h1>Mapa de campo</h1><p>Controle de ovitrampas<br>Vigilância em Saúde / Endemias</p></div>
       </div>
       <button id="closeMenu" class="btn btn-sm primary" type="button"><i data-ico="map"></i>Ver mapa</button>
@@ -33,9 +33,9 @@
       <input id="agBusca" type="search" placeholder="Buscar agente, área ou nº…" aria-label="Buscar agente" autocomplete="off">
       <label for="agOrd" class="field-label">Organizar por</label>
       <select id="agOrd" aria-label="Organizar agentes por">
-        <option value="equipe" selected>Equipe (e nome dentro da equipe)</option>
+        <option value="equipe">Equipe (e nome dentro da equipe)</option>
         <option value="nome">Nome do agente (A–Z)</option>
-        <option value="zona">Nº da zona</option>
+        <option value="zona" selected>Nº da zona</option>
       </select>
       <div id="agEq" role="group" aria-label="Filtrar por equipe"></div>
       <p class="hint" id="bInfo"></p>
@@ -82,13 +82,14 @@
       </div>
       <label class="switch"><input type="checkbox" id="fieldMode"> Esconder as demais ovitrampas</label>
       <div class="count"><div><b id="cSel">0</b> selecionadas</div><div><b id="cVis">242</b> no mapa</div></div>
+      <button class="btn primary big" id="gen2" type="button">SELECIONE OVITRAMPAS PARA GERAR O MAPA</button>
       <details class="subd">
         <summary>Nome do agente e equipe (preenchimento manual)</summary>
         <input id="agNome" type="text" placeholder="Ex.: Maria da Silva" autocomplete="off" aria-label="Nome do agente">
         <input id="agEquipe" type="text" placeholder="Equipe (opcional)" autocomplete="off" aria-label="Equipe">
         <p class="hint">Só use se a seleção não for de um agente da lista. Quando você escolhe um agente, tudo entra sozinho.</p>
       </details>
-      <p class="hint">Escolhidos os pontos, use <b>Gerar mapa de campo</b> em “Agentes e equipes”. Também dá para selecionar tocando no número e usando o botão “Selecionar” do balão.</p>
+      <p class="hint">Na pesquisa, toque em <b>Selecionar</b> ao lado de cada ovitrampa, ou toque no número no mapa e use “Selecionar” no balão. Depois use <b>Gerar mapa</b>: o relatório sai com mapa, endereços, ordem de visita e QR da rota (até 40 ovitrampas por mapa).</p>
       </div>
     </details>
 
@@ -146,13 +147,13 @@
           <button class="btn ghost" id="ungroup" type="button">Remover cores</button>
         </div>
         <div id="groups"></div>
-        <p class="hint">Agrupa os pontos visíveis por vizinhança. Toque num grupo para selecioná-lo.</p>
+        <p class="hint">Agrupa por vizinhança as ovitrampas <b>selecionadas</b> (no mapa, na pesquisa ou por número). Sem seleção, agrupa as visíveis. Toque num grupo para selecioná-lo.</p>
       </div>
       </div>
     </details>
 
-    <details class="sec">
-      <summary><i data-ico="chart"></i><span>Indicadores</span></summary>
+    <details class="sec destaque">
+      <summary><i data-ico="chart"></i><span id="indTit">Indicadores</span></summary>
       <div class="secbody">
       <div id="kpiResumo" class="kpis"></div>
       <div class="row">
@@ -384,8 +385,8 @@
 
 
 
-<script src="assets/vendor/leaflet.js?v=63ead8d5"></script>
-<script src="assets/js/ui.js?v=63ead8d5"></script>
-<script src="assets/js/boot.js?v=63ead8d5"></script>
+<script src="assets/vendor/leaflet.js?v=40987ec4"></script>
+<script src="assets/js/ui.js?v=40987ec4"></script>
+<script src="assets/js/boot.js?v=40987ec4"></script>
 </body>
 </html>

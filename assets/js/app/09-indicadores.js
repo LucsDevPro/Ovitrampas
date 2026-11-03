@@ -65,8 +65,11 @@ function equipesDados(){
   const chaves=[...new Set(AGS.map(a=>a.equipe||0))].sort((a,b)=>(a||99)-(b||99));
   return chaves.map(k=>{ const ags=AGS.filter(a=>(a.equipe||0)===k), lista=ags.flatMap(a=>a.lista); return {eq:k,nome:k?'Equipe '+k:'Sem equipe',ags,lista,ind:indic(lista)}; });
 }
+const MES_LONGO_IND=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+function mesIndicadores(){ const ms=(PUB.ano&&PUB.ano.meses)||[]; if(!ms.length) return ''; const m=ms[ms.length-1]; return MES_LONGO_IND[+m.slice(5,7)-1]+' de '+m.slice(0,4); }
 function atualizaIndicadores(){
-  const r=indic(pts);
+  const r=indic(pts), mi=mesIndicadores();
+  if($('indTit')) $('indTit').textContent='Indicadores'+(mi?' · '+mi:''); if($('indT')) $('indT').textContent='Indicadores das ovitrampas'+(mi?' · '+mi:'');
   $('kpiResumo').innerHTML=[[fPct(r.ipo),'IPO'],[fNum(r.imo),'IDO'],[r.pos+'/'+r.com,'Positivas'],[r.ovos,'Total de ovos'],[r.com,'Com contagem'],[r.n-r.com,'Sem contagem']].map(([v,l])=>`<div class="kpi"><b>${v}</b><span>${l}</span></div>`).join('');
 }
 function criticas(lista,max){ return lista.filter(o=>o.ovos>0).sort((a,b)=>b.ovos-a.ovos||a.id-b.id).slice(0,max); }

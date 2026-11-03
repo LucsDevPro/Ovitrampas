@@ -34,7 +34,7 @@ async function abrirFolha(){
   }catch(e){ console.error(e); $('sheetLoad').textContent='Não foi possível gerar o relatório. Confira a internet e tente de novo.'; }
 }
 function fecharFolha(){ $('sheet').style.display='none'; document.body.style.overflow=''; setTimeout(()=>map.invalidateSize(),50); }
-$('gen').addEventListener('click',abrirFolha);
+$('gen').addEventListener('click',abrirFolha); if($('gen2')) $('gen2').addEventListener('click',abrirFolha);
 $('sBack').addEventListener('click',fecharFolha);
 $('sPrint').addEventListener('click',()=>{ if(!folhaAtual){ toast('Aguarde o relatório terminar de carregar.'); return; } const t=document.title; document.title='Relatório de campo - ovitrampas '+compress(folhaAtual.lista.map(o=>o.id)); window.print(); setTimeout(()=>document.title=t,500); });
 $('sPng').addEventListener('click',async()=>{

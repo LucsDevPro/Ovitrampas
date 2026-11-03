@@ -51,9 +51,17 @@ function kpis(l){ const r=indic(l);
   $('dist').innerHTML=FAIXAS.map(([t,c],i)=>`<div class="bandbar">${svgFaixa(i,c,18)}<i style="background:${c};width:${Math.max(2,Math.round(r.b[i]/mx*50))}%"></i><span><b>${r.b[i]}</b> · ${t}</span></div>`).join('');
 }
 let mostraZero=false, mostraCalor=false;
-const GRAD_CALOR={0:'#00a8e8',.25:'#22bf4a',.5:'#ffc800',.75:'#ff7a00',1:'#e60026'};
-/* mapa de calor: peso = ovos (100 ovos ou mais = intensidade máxima); 0 ovos não esquenta o mapa */
-const calorCamada=pts=>L.heatLayer(pts.filter(p=>p[2]>0).map(p=>[p[0],p[1],Math.min(1,p[2]/100)]),{radius:30,blur:24,maxZoom:17,max:1,minOpacity:.3,gradient:GRAD_CALOR});
+const GRAD_CALOR={.12:'#1fb84a',.38:'#ffd500',.62:'#ff7a00',.85:'#e60026',1:'#9b0018'};
+/* mapa de calor: cada ovitrampa positiva esquenta o mapa (mais ovos = mais forte) e o calor se liga até a ovitrampa positiva mais próxima,
+   para formar manchas contínuas. 0 ovos não esquenta. */
+function calorCamada(pts){
+  const pos=pts.filter(p=>p[2]>0).map(p=>({la:p[0],lo:p[1],i:0.3+0.7*Math.min(1,p[2]/100)}));
+  const kx=Math.cos(-22.5*Math.PI/180), m=(a,b)=>Math.hypot((a.la-b.la)*111320,(a.lo-b.lo)*111320*kx), saida=pos.map(p=>[p.la,p.lo,p.i]);
+  pos.forEach((p,k)=>{ let bi=-1,bd=Infinity; pos.forEach((q,j)=>{ if(j===k) return; const d=m(p,q); if(d<bd){ bd=d; bi=j; } });
+    if(bi<0||bd>700||bd<25) return; const q=pos[bi], n=Math.floor(bd/25);
+    for(let s=1;s<n;s++){ const f=s/n; saida.push([p.la+(q.la-p.la)*f,p.lo+(q.lo-p.lo)*f,(p.i+(q.i-p.i)*f)*.85]); } });
+  return L.heatLayer(saida,{radius:30,blur:20,maxZoom:18,max:.75,minOpacity:.55,gradient:GRAD_CALOR});
+}
 function mapaRender(l){
   if(!mapa){
     mapa=L.map('mapa',{scrollWheelZoom:false});
@@ -389,8 +397,8 @@ function imprimeAlvo(el,titulo,sub){
 const SVG_PRN='<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M7 3h10v5H7zM5 9h14a2 2 0 0 1 2 2v6h-4v4H7v-4H3v-6a2 2 0 0 1 2-2zm4 6v4h6v-4z" fill="currentColor"/></svg>';
 function addPrn(){
   document.querySelectorAll('main h2,main h3').forEach(h=>{ const alvo=h.parentElement; if(!alvo||h.dataset.prn||h.closest('.noprint')||!(alvo.tagName==='SECTION'||alvo.classList.contains('cx')||alvo.classList.contains('tabv'))||!alvo.querySelector('table,svg,.kpis,.gcards,#dist,#mapa')) return;
-    h.dataset.prn='1'; const b=document.createElement('button'); b.type='button'; b.className='btprn noprint'; b.title='Imprimir só esta parte'; b.setAttribute('aria-label','Imprimir só esta parte'); b.innerHTML=SVG_PRN;
-    b.onclick=e=>{ e.stopPropagation(); imprimeAlvo(alvo,h.textContent.replace(/\s+/g,' ').trim()); }; h.appendChild(b); });
+    h.dataset.prn='1'; alvo.classList.add('pr-host',alvo.tagName==='SECTION'?'pr-sec':'pr-card'); const b=document.createElement('button'); b.type='button'; b.className='btprn noprint'; b.title='Imprimir só esta parte'; b.setAttribute('aria-label','Imprimir só esta parte'); b.innerHTML=SVG_PRN;
+    b.onclick=e=>{ e.stopPropagation(); imprimeAlvo(alvo,h.textContent.replace(/\s+/g,' ').trim()); }; alvo.appendChild(b); });
 }
 { let tm=null; new MutationObserver(()=>{ clearTimeout(tm); tm=setTimeout(addPrn,120); }).observe(document.querySelector('main')||document.body,{childList:true,subtree:true}); setTimeout(addPrn,800); }
 
@@ -491,3 +499,8 @@ iniciar();
 document.addEventListener('change',e=>{ if(e.target&&e.target.classList&&e.target.classList.contains('chkZero')){ mostraZero=e.target.checked; document.querySelectorAll('.chkZero').forEach(c=>c.checked=mostraZero); if(typeof mapaRender==='function'){ mapaRender(ptsFil()); if(aba==='mensal'&&typeof mapaMesPontos==='function') mapaMesPontos(true); } } });
 
 document.addEventListener('change',e=>{ if(e.target&&e.target.classList&&e.target.classList.contains('chkCalor')){ mostraCalor=e.target.checked; document.querySelectorAll('.chkCalor').forEach(c=>c.checked=mostraCalor); mapaRender(ptsFil()); if(mapaM&&aba==='mensal') mapaMesPontos(false); } });
+
+/* esconder / mostrar os botões de equipe (o filtro escolhido continua valendo) */
+{ const sec=document.querySelector('.filtros'), b=$('btnEq'); let esc=false; try{ esc=localStorage.getItem('ovEqEsc')==='1'; }catch(e){}
+  const aplica=()=>{ if(!sec||!b) return; sec.classList.toggle('eq-esc',esc); b.textContent=esc?'Mostrar equipes':'Esconder equipes'; b.setAttribute('aria-expanded',String(!esc)); };
+  if(b){ b.onclick=()=>{ esc=!esc; try{ localStorage.setItem('ovEqEsc',esc?'1':'0'); }catch(e){} aplica(); }; aplica(); } }

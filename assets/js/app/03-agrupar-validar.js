@@ -17,17 +17,25 @@ function kmeans(list,k){
   return asg;
 }
 let grupos=[];
-$('group').addEventListener('click',()=>{
-  const list=visibleList(); if(list.length<2){ toast('Poucos pontos visíveis para agrupar.'); return; }
-  const size=Math.max(5,Math.min(60,+$('gsize').value||20));
+/* divide em grupos de tamanho parecido: k-médias e, se algum grupo ficar grande demais, divide de novo só ele */
+function agrupaPorProximidade(list,size,nivel){
   const k=Math.max(1,Math.round(list.length/size));
-  const asg=kmeans(list,k);
-  pts.forEach(o=>o.grupo=null);
-  const buckets=Array.from({length:k},()=>[]);
+  if(k<=1||list.length<2) return [list];
+  const asg=kmeans(list,k), buckets=Array.from({length:k},()=>[]);
   list.forEach((o,i)=>buckets[asg[i]].push(o));
-  grupos=buckets.filter(b=>b.length).sort((a,b)=>Math.min(...a.map(o=>o.lon))-Math.min(...b.map(o=>o.lon)));
+  const out=[];
+  buckets.filter(b=>b.length).forEach(b=>{ if(b.length>size*1.5&&(nivel||0)<4&&b.length<list.length) out.push(...agrupaPorProximidade(b,size,(nivel||0)+1)); else out.push(b); });
+  return out;
+}
+$('group').addEventListener('click',()=>{
+  /* agrupa o que foi selecionado (no mapa, na pesquisa ou por número); sem seleção, agrupa os pontos visíveis */
+  const usaSel=sel.size>=2, list=usaSel?pts.filter(o=>sel.has(o.id)&&isFinite(o.lat)):visibleList();
+  if(list.length<2){ toast('Selecione ao menos 2 ovitrampas (ou deixe os pontos visíveis) para agrupar.'); return; }
+  const size=Math.max(5,Math.min(60,+$('gsize').value||20));
+  pts.forEach(o=>o.grupo=null);
+  grupos=agrupaPorProximidade(list,size).filter(b=>b.length).sort((a,b)=>Math.min(...a.map(o=>o.lon))-Math.min(...b.map(o=>o.lon)));
   grupos.forEach((g,i)=>g.forEach(o=>o.grupo=i));
-  reicon(); renderGrupos(); toast(`${grupos.length} grupos criados`);
+  reicon(); renderGrupos(); toast(`${grupos.length} grupo${grupos.length>1?'s':''} criado${grupos.length>1?'s':''} com ${list.length} ovitrampas${usaSel?' selecionadas':' visíveis'}`);
 });
 $('ungroup').addEventListener('click',()=>{ pts.forEach(o=>o.grupo=null); grupos=[]; reicon(); renderGrupos(); });
 function renderGrupos(){

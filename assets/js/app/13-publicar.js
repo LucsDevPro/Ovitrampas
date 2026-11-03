@@ -78,8 +78,9 @@ $('pubBaixar').addEventListener('click',async()=>{
 
 /* texto do botão "Mapa de campo" acompanha a seleção */
 function atualizaGen(){
-  const b=$('gen'); if(!b) return; const ids=[...sel];
-  if(!ids.length){ b.textContent='SELECIONE UM AGENTE ACIMA'; return; }
+  const b=$('gen'), b2=$('gen2'); if(!b) return; const ids=[...sel];
+  if(!ids.length){ b.textContent='SELECIONE UM AGENTE ACIMA'; if(b2) b2.textContent='SELECIONE OVITRAMPAS PARA GERAR O MAPA'; return; }
   const a=AGS.find(x=>x.lista.length===ids.length&&x.lista.every(o=>sel.has(o.id)));
   b.textContent=a?('GERAR MAPA DE CAMPO · '+nomeAg(a).toUpperCase()):('GERAR MAPA DE CAMPO · '+ids.length+' SELECIONADAS');
+  if(b2) b2.textContent='GERAR MAPA · '+ids.length+(ids.length===1?' SELECIONADA':' SELECIONADAS');
 }

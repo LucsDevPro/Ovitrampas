@@ -182,11 +182,11 @@ function irPara(o){
 $('q').addEventListener('input',e=>{
   const r=buscar(e.target.value), box=$('sres');
   if(!e.target.value.trim()){ box.style.display='none'; return; }
-  box.innerHTML = r.length? r.map(o=>`<button type="button" data-id="${o.id}"><b>${o.id}</b><span>${esc(o.endereco)}<small>${esc(o.latRaw)}, ${esc(o.lonRaw)}</small></span></button>`).join('') : '<div style="padding:12px;color:#587079">Nada encontrado.</div>';
+  box.innerHTML = r.length? r.map(o=>`<div class="srow"><button type="button" data-id="${o.id}"><b>${o.id}</b><span>${esc(o.endereco)}<small>${esc(o.latRaw)}, ${esc(o.lonRaw)}</small></span></button><button type="button" class="ssel${sel.has(o.id)?' on':''}" data-sel="${o.id}">${sel.has(o.id)?'Selecionada ✓':'Selecionar'}</button></div>`).join('') : '<div style="padding:12px;color:#587079">Nada encontrado.</div>';
   box.style.display='block';
 });
 $('q').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const r=buscar(e.target.value); if(r[0]) irPara(r[0]); } });
-$('sres').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) irPara(byId[+b.dataset.id]); });
+$('sres').addEventListener('click',e=>{ const s=e.target.closest('button[data-sel]'); if(s){ const id=+s.dataset.sel; toggleSel(id); const on=sel.has(id); s.classList.toggle('on',on); s.textContent=on?'Selecionada ✓':'Selecionar'; return; } const b=e.target.closest('button[data-id]'); if(b) irPara(byId[+b.dataset.id]); });
 document.addEventListener('click',e=>{ if(!e.target.closest('.search')) $('sres').style.display='none'; });
 
 /* menu móvel */

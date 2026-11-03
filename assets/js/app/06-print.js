@@ -230,12 +230,14 @@ function ajustaTexto(ctx,txt,max,peso,tam,min){
 function comporFolha(mapCv,lista,titulo,info){
   info=info||{};
   const gr=gradePrintOn()?G:null;
-  const W=mapCv.width, u=W/1000, n=lista.length, comLista=n>=1&&n<=20, rowH=(n>10?50:62)*u, mx=24*u;
+  const W=mapCv.width, u=W/1000, n=lista.length, comLista=n>=1&&n<=40, rowH=(n>10?50:62)*u, mx=24*u;
   const INK=PAL.navy, BR=PAL.blue, CL='#EEF4FA', LN='#C5D6E8', MUTE='#5B7391', RISCO='#9DB0C6';
   const ordem=(rotaRelOn()&&n>=2)?rotaOrdem(lista):lista, comRota=ordem!==lista;
-  const urlR=(rotaRelOn()&&comLista&&n<=10&&typeof qrcode==='function')?urlRota(ordem):null;
+  /* rota em QR: até 10 paradas por QR (limite do Google Maps); com mais paradas, a rota vira trechos em sequência */
+  const trechos=[]; if(rotaRelOn()&&comLista&&typeof qrcode==='function'){ for(let k=0;k<ordem.length;k+=10){ const parte=ordem.slice(k,k+10); trechos.push({ids:parte.map(o=>o.id),url:urlRota(parte,k>0?ordem[k-1]:null)}); } }
+  const urlR=trechos.length===1?trechos[0].url:null, multiQR=trechos.length>1, QRPL=4;
   const mh=mapCv.height*(W-2*mx)/W, hHead=128*u, hInfo=100*u, hSecT=comLista?64*u:0, hTh=comLista?38*u:0, hRows=comLista?n*rowH:0;
-  const temOvos=comLista&&lista.some(o=>o.ovos!==null&&o.ovos!==undefined), hTot=temOvos?48*u:0, hLeg=ovPrintOn()?40*u:0, hQR=urlR?172*u:0, hFoot=56*u;
+  const temOvos=comLista&&lista.some(o=>o.ovos!==null&&o.ovos!==undefined), hTot=temOvos?48*u:0, hLeg=ovPrintOn()?40*u:0, hQR=urlR?172*u:(multiQR?(70+Math.ceil(trechos.length/QRPL)*(136+74))*u:0), hFoot=56*u;
   const cv=document.createElement('canvas'); cv.width=W; cv.height=Math.round(hHead+hInfo+mh+16*u+hSecT+hTh+hRows+hTot+hLeg+hQR+hFoot);
   const c=cv.getContext('2d');
   c.fillStyle='#fff'; c.fillRect(0,0,cv.width,cv.height);
@@ -333,11 +335,20 @@ function comporFolha(mapCv,lista,titulo,info){
         c.fillStyle=MUTE; c.font=`400 ${12.5*u}px ${FONTE}`; c.fillText('Menor caminho calculado entre os pontos. Pode ser percorrido ao contrário, se for mais prático.',qx,qy+116*u);
       }
       y+=hQR;
+    } else if(multiQR){
+      const qy0=y+18*u, tam=136*u, gap=(W-2*mx-QRPL*tam)/(QRPL-1);
+      c.textAlign='left'; c.fillStyle=INK; c.font=`800 ${19*u}px ${FONTE}`; c.fillText('Rota sugerida no Google Maps · '+trechos.length+' trechos',mx,qy0+22*u);
+      c.fillStyle=MUTE; c.font=`400 ${13.5*u}px ${FONTE}`; c.fillText('O Google Maps aceita até 10 paradas por rota. Faça os trechos em ordem: cada QR parte do último ponto do trecho anterior (o 1º parte da sua localização).',mx,qy0+46*u);
+      trechos.forEach((tr,k)=>{ const col=k%QRPL, lin=Math.floor(k/QRPL), qx=mx+col*(tam+gap), qy=qy0+70*u+lin*(tam+74*u);
+        if(desenhaQR(c,tr.url,qx,qy,tam)){ c.strokeStyle=LN; c.lineWidth=1.5*u; c.strokeRect(qx,qy,tam,tam);
+          c.textAlign='left'; c.fillStyle=INK; c.font=`800 ${14.5*u}px ${FONTE}`; c.fillText('Trecho '+(k+1),qx,qy+tam+20*u);
+          c.fillStyle=MUTE; c.font=`400 ${12*u}px ${FONTE}`; c.fillText(ajustaTexto(c,tr.ids.join(' → '),tam+gap-8*u,400,12*u,8*u),qx,qy+tam+40*u); } });
+      y+=hQR;
     }
   }
   c.fillStyle=LN; c.fillRect(mx,y+14*u,W-2*mx,1.5*u);
   c.textAlign='left'; c.fillStyle=MUTE; c.font=`400 ${12*u}px ${FONTE}`;
-  c.fillText('O número no mapa é o ID permanente da ovitrampa.'+(comLista?' Marque “OK” ao concluir cada ponto.':' Lista de endereços disponível para até 20 ovitrampas por mapa.'),mx,y+36*u);
+  c.fillText('O número no mapa é o ID permanente da ovitrampa.'+(comLista?' Marque “OK” ao concluir cada ponto.':' Lista de endereços disponível para até 40 ovitrampas por mapa.'),mx,y+36*u);
   c.textAlign='right'; c.fillText('Gerado em '+new Date().toLocaleString('pt-BR'),W-mx,y+36*u);
   return cv;
 }
