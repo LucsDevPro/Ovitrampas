@@ -505,3 +505,8 @@ document.addEventListener('change',e=>{ if(e.target&&e.target.classList&&e.targe
 { const sec=document.querySelector('.filtros'), b=$('btnEq'); let esc=false; try{ esc=localStorage.getItem('ovEqEsc')==='1'; }catch(e){}
   const aplica=()=>{ if(!sec||!b) return; sec.classList.toggle('eq-esc',esc); b.textContent=esc?'Mostrar equipes':'Esconder equipes'; b.setAttribute('aria-expanded',String(!esc)); };
   if(b){ b.onclick=()=>{ esc=!esc; try{ localStorage.setItem('ovEqEsc',esc?'1':'0'); }catch(e){} aplica(); }; aplica(); } }
+
+/* tema claro / escuro do cabeçalho (lembra a escolha) */
+{ const b=$('btnTema'), r=document.documentElement; let cl=false; try{ cl=localStorage.getItem('ovTema')==='claro'; }catch(e){}
+  const ap=()=>{ if(cl) r.setAttribute('data-tema','claro'); else r.removeAttribute('data-tema'); if(b){ b.textContent=cl?'Tema escuro':'Tema claro'; b.setAttribute('aria-pressed',String(cl)); } };
+  if(b) b.onclick=()=>{ cl=!cl; try{ localStorage.setItem('ovTema',cl?'claro':'escuro'); }catch(e){} ap(); }; ap(); }

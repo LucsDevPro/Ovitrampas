@@ -267,3 +267,18 @@ h2 .btprn,h3 .btprn{text-transform:none}
 
 /* mapa de calor transparente: o nome das ruas continua legível por baixo */
 .leaflet-heatmap-layer{opacity:.5}
+
+/* tema claro (botão "Tema claro" no topo) — o tema escuro continua sendo o padrão */
+html[data-tema=claro] .top{background:linear-gradient(115deg,#ffffff 0,#f1f6fd 60%,#e3eefb 100%);box-shadow:0 2px 12px rgba(10,33,69,.12);border-bottom:1px solid #d5e2f1}
+html[data-tema=claro] .top::before{background:radial-gradient(rgba(10,33,69,.08) 1.2px,transparent 1.4px) 0 0/18px 18px}
+html[data-tema=claro] .brand h1{color:#0a2145}
+html[data-tema=claro] .brand p{color:#0077c8}
+html[data-tema=claro] .brand img{background:none;padding:0}
+html[data-tema=claro] .hk .kpi{background:#fff;border:1px solid #d5e2f1;box-shadow:0 2px 8px rgba(10,33,69,.06);backdrop-filter:none}
+html[data-tema=claro] .hk .kpi b{color:#0a2145!important}
+html[data-tema=claro] .hk .kpi span,html[data-tema=claro] .hk .kleg{color:#4b6381}
+html[data-tema=claro] .top .acoes{border-top-color:#d5e2f1}
+html[data-tema=claro] .top button,html[data-tema=claro] .top .bt{color:#0a2145;border-color:#b9cde4}
+html[data-tema=claro] .top button:hover,html[data-tema=claro] .top .bt:hover{background:#e6f0fb}
+html[data-tema=claro] .top button.pri{background:var(--ac);border-color:var(--ac);color:#06241a}
+html[data-tema=claro] .top .anosel,html[data-tema=claro] .top label{color:#0a2145}
