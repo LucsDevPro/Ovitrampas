@@ -291,3 +291,22 @@ html[data-tema=claro] .top .anosel,html[data-tema=claro] .top label{color:#0a214
 /* durante a impressão de uma parte, o mapa tem tamanho fixo que cabe na folha */
 .print-alvo #mapa,.print-alvo #mapaM{width:680px!important;max-width:100%!important;height:400px!important}
 @media print{ .print-alvo #mapa,.print-alvo #mapaM{width:680px!important} }
+.leg.cor i{display:inline-block;width:22px;height:6px;border:0;border-radius:3px;vertical-align:middle}
+
+/* impressão: cabeçalho sempre claro (gasta menos tinta e o texto aparece) */
+@media print{
+.top{background:linear-gradient(115deg,#ffffff 0,#f1f6fd 60%,#e3eefb 100%);box-shadow:0 2px 12px rgba(10,33,69,.12);border-bottom:1px solid #d5e2f1}
+.top::before{background:radial-gradient(rgba(10,33,69,.08) 1.2px,transparent 1.4px) 0 0/18px 18px}
+.brand h1{color:#0a2145}
+.brand p{color:#0077c8}
+.brand img{background:none;padding:0}
+.hk .kpi{background:#fff;border:1px solid #d5e2f1;box-shadow:0 2px 8px rgba(10,33,69,.06);backdrop-filter:none}
+.hk .kpi b{color:#0a2145!important}
+.hk .kpi span,.hk .kleg{color:#4b6381}
+.top .acoes{border-top-color:#d5e2f1}
+.top button,.top .bt{color:#0a2145;border-color:#b9cde4}
+.top button:hover,.top .bt:hover{background:#e6f0fb}
+.top button.pri{background:var(--ac);border-color:var(--ac);color:#06241a}
+.top{padding:6px 0 8px!important;break-after:avoid;box-shadow:none!important}.hk{gap:6px!important}.hk .kpi{padding:6px 8px!important}.hk .kpi span{font-size:8.5px!important}.top::before{display:none}
+}
+@media print{ .alts .cx,.cx.alt,.cx:has(table){break-inside:auto!important} .alts{display:block!important} .alts .cx{margin-bottom:10px} thead{display:table-header-group} }

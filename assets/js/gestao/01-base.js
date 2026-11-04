@@ -96,7 +96,7 @@ function tabelaAgentes(){
 }
 function criticos(l){
   const c=l.filter(o=>o.ovos>0).sort((a,b)=>b.ovos-a.ovos||a.id-b.id).slice(0,25);
-  $('crit').innerHTML=c.length?`<table><thead><tr><th>ID ovitrampa</th>${D.identificado&&D.identificado.enderecos===false?'':'<th>Endereço</th>'}<th>Agente</th><th>Equipe</th><th class="n">Ovos</th></tr></thead><tbody>${c.map(o=>{ const a=POR_ID[o.id]; return `<tr><td><span class="pill">${o.id}</span></td>${D.identificado&&D.identificado.enderecos===false?'':`<td>${esc(o.end||'—')}</td>`}<td>${esc(a?nomeAg(a):'—')}</td><td>${esc(a?eqTxt(a):'—')}</td><td class="n"><span class="ch" style="background:${corOvos(o.ovos)}"></span><b>${o.ovos}</b></td></tr>`; }).join('')}</tbody></table>`:'<p style="padding:14px;margin:0">Nenhuma ovitrampa positiva.</p>';
+  $('crit').innerHTML=c.length?`<table><thead><tr><th>ID ovitrampa</th>${D.identificado&&D.identificado.enderecos===false?'':'<th>Endereço</th>'}<th>Agente</th><th>Equipe</th><th class="n">Ovos</th></tr></thead><tbody>${c.map(o=>{ const a=POR_ID[o.id]; return `<tr><td><button type="button" class="lk" data-id="${o.id}" title="Abrir histórico"><b>${o.id}</b></button></td>${D.identificado&&D.identificado.enderecos===false?'':`<td>${esc(o.end||'—')}</td>`}<td>${esc(a?nomeAg(a):'—')}</td><td>${esc(a?eqTxt(a):'—')}</td><td class="n"><span class="ch" style="background:${corOvos(o.ovos)}"></span><b>${o.ovos}</b></td></tr>`; }).join('')}</tbody></table>`:'<p style="padding:14px;margin:0">Nenhuma ovitrampa positiva.</p>';
 }
 function evolucao(l){
   /* por semana epidemiológica: cada ovitrampa conta uma vez; se foi lida mais de uma vez na mesma semana, vale a média (mesma regra do mês) */
@@ -180,7 +180,7 @@ function mostraAba(a){
 }
 function updUrl(){ try{ const u=new URL(location.href); filtro===null?u.searchParams.delete('equipe'):u.searchParams.set('equipe',filtro); aba==='resumo'?u.searchParams.delete('aba'):u.searchParams.set('aba',aba); (aba==='mensal'&&MESES.length)?u.searchParams.set('mes',MESES[mesSel]):u.searchParams.delete('mes'); history.replaceState(null,'',u); }catch(e){} }
 function imprime(tudo){
-  const atual=aba;
+  const atual=aba, bs=[[typeof mapa!=='undefined'?mapa:null],[typeof mapaM!=='undefined'?mapaM:null]].map(([m])=>{ try{ return m?[m,m.getBounds()]:null; }catch(e){ return null; } }).filter(Boolean);
   const depois=()=>{ setTimeout(()=>{ bs.forEach(([m,b])=>{ try{ m.invalidateSize({animate:false}); m.fitBounds(b,{animate:false}); }catch(e){} }); setTimeout(()=>window.print(),500); },150); };
   window.onafterprint=()=>{ window.onafterprint=null; mostraAba(atual); };
   if(tudo){ ['resumo','mensal','focos'].forEach(t=>$('tab-'+t).classList.remove('off')); aba='mensal'; mensalRender(); focosRender(); }

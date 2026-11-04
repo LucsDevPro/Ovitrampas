@@ -37,5 +37,5 @@ function histRender(){
   box.querySelectorAll('.lk').forEach(b=>b.onclick=()=>ir(+b.dataset.id));
   if($('hPrn')) $('hPrn').onclick=()=>{ const o=l.find(x=>x.id===histId); if(!o) return; const a=POR_ID[o.id]; imprimeAlvo(box.querySelector('.cx'),'Histórico da ovitrampa '+o.id+(o.end&&!semEnd?' · '+o.end:''),(a?'Agente: '+nomeAg(a)+' · '+eqTxt(a)+(a.area?' · '+a.area:''):'Sem agente definido')+' · Ano '+(D.ano||MESES[0].slice(0,4))); };
 }
-document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('#alertas .lk'); if(b){ histId=+b.dataset.id; mostraAba('hist'); window.scrollTo({top:0}); } });
+document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('.lk[data-id]'); if(b&&!b.closest('#tab-hist')&&/^\d+$/.test(b.dataset.id)){ histId=+b.dataset.id; mostraAba('hist'); window.scrollTo({top:0}); } });
 
