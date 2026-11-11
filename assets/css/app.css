@@ -208,3 +208,11 @@ h1,h2,h3,.sec>summary>span,.kpi b,.kpis b{font-family:var(--font-d);letter-spaci
 .sec>summary>span{font-size:.86rem}
 .brand-txt h1{font-size:1.05rem}
 .subsec h3,.secbody h3{font-size:.8rem}
+
+/* cabeçalho do menu: logo + título na 1ª linha, botões alinhados na 2ª */
+.sidehead{flex-wrap:wrap;row-gap:10px}
+.brand{flex:1 1 100%}
+.brand-txt{flex:1}
+.brand-txt h1{font-size:1.05rem;white-space:nowrap;line-height:1.2}
+.brand-txt p{font-size:.72rem;line-height:1.35}
+.sidehead>.btn{flex:1 1 0;justify-content:center;white-space:nowrap}
