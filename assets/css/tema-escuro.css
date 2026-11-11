@@ -1,6 +1,6 @@
-/* tema-escuro.css — visual escuro "premium" nas duas páginas (padrão). O botão "Tema claro" (data-tema="claro" no <html>) volta ao visual claro.
+/* tema-escuro.css — visual escuro premium, ativado pelo botão "Tema escuro" (data-tema="escuro" no <html>). O padrão é o tema claro. Só sobrescreve cores/superfícies. */
    Só sobrescreve cores/superfícies; tamanhos e estrutura continuam nos outros CSS. */
-html:not([data-tema=claro]){
+html[data-tema=escuro]{
   color-scheme:dark;
   --canvas:#061a3d; --surface:rgba(255,255,255,.07); --panel:rgba(255,255,255,.07); --card:rgba(255,255,255,.07); --bg:#061a3d;
   --ink:#f2f7ff; --tx-2:rgba(255,255,255,.84); --mute:rgba(255,255,255,.64); --mute-2:rgba(255,255,255,.5);
@@ -8,85 +8,85 @@ html:not([data-tema=claro]){
   --navy:#ffffff; --azul-700:#6cc4ff; --link:#6cc4ff; --err:#ff8f9d; --ok:#3ddc84; --warn:#ffc233; --warn-bg:rgba(255,194,51,.14);
   --azul-100:rgba(0,126,202,.22); --azul-50:rgba(0,126,202,.12); --azul-200:rgba(108,196,255,.35); --verde-100:rgba(61,220,132,.16); --vermelho-100:rgba(255,107,107,.16); --amarelo-100:rgba(255,194,51,.16);
 }
-html:not([data-tema=claro]) body{
+html[data-tema=escuro] body{
   background:#061a3d;color:var(--ink);
   background-image:radial-gradient(900px 520px at 88% -8%,rgba(255,107,107,.16),transparent 70%),radial-gradient(900px 600px at 0% 100%,rgba(0,126,202,.30),transparent 70%),linear-gradient(180deg,#04122f,#0a2145 45%,#061a3d);
   background-attachment:fixed;
 }
 /* cabeçalho */
-html:not([data-tema=claro]) .top,html:not([data-tema=claro]) header.top{background:linear-gradient(115deg,#04122f,#0a2145 55%,#0b3a7a);color:#fff;border-bottom:1px solid rgba(255,255,255,.12)}
-html:not([data-tema=claro]) .brand h1,html:not([data-tema=claro]) .top h1{color:#fff}
-html:not([data-tema=claro]) .brand p{color:#8fd0ff}
-html:not([data-tema=claro]) .brand img{background:#fff;border-radius:12px}
+html[data-tema=escuro] .top,html[data-tema=escuro] header.top{background:linear-gradient(115deg,#04122f,#0a2145 55%,#0b3a7a);color:#fff;border-bottom:1px solid rgba(255,255,255,.12)}
+html[data-tema=escuro] .brand h1,html[data-tema=escuro] .top h1{color:#fff}
+html[data-tema=escuro] .brand p{color:#8fd0ff}
+html[data-tema=escuro] .brand img{background:#fff;border-radius:12px}
 /* cartões, tabelas, painéis: vidro */
-html:not([data-tema=claro]) :is(.cx,.eqcard,.gcard,.tw,.kpi,.mini,.aviso-card,.card,.panel,.sec,details.sec,.alt,.zapgrid .cx){
+html[data-tema=escuro] :is(.cx,.eqcard,.gcard,.tw,.kpi,.mini,.aviso-card,.card,.panel,.sec,details.sec,.alt,.zapgrid .cx){
   background:rgba(255,255,255,.07)!important;border-color:rgba(255,255,255,.15)!important;color:var(--ink);box-shadow:0 14px 40px rgba(0,8,30,.35);backdrop-filter:blur(6px)}
-html:not([data-tema=claro]) :is(h1,h2,h3,h4,b,strong,.kpi b){color:#fff}
-html:not([data-tema=claro]) h2::after{background:linear-gradient(90deg,#4cc3ff 0 60px,#ffc233 60px 90px,rgba(255,255,255,.16) 90px)}
-html:not([data-tema=claro]) :is(.kpi span,.nota,small,.hint,p){color:var(--mute)}
+html[data-tema=escuro] :is(h1,h2,h3,h4,b,strong,.kpi b){color:#fff}
+html[data-tema=escuro] h2::after{background:linear-gradient(90deg,#4cc3ff 0 60px,#ffc233 60px 90px,rgba(255,255,255,.16) 90px)}
+html[data-tema=escuro] :is(.kpi span,.nota,small,.hint,p){color:var(--mute)}
 /* tabelas alinhadas */
-html:not([data-tema=claro]) table{border-collapse:separate;border-spacing:0;width:100%;color:var(--ink)}
-html:not([data-tema=claro]) th{background:rgba(255,255,255,.10)!important;color:#cfe6ff!important;font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:800;text-align:left;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.18);white-space:nowrap;position:sticky;top:0;z-index:2}
-html:not([data-tema=claro]) td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:middle;color:var(--ink)}
-html:not([data-tema=claro]) :is(th.n,td.n){text-align:right;font-variant-numeric:tabular-nums}
-html:not([data-tema=claro]) tbody tr:nth-child(even) td{background:rgba(255,255,255,.035)}
-html:not([data-tema=claro]) tbody tr:hover td{background:rgba(76,195,255,.12)}
-html:not([data-tema=claro]) tr.sel td{background:rgba(255,194,51,.22)!important}
-html:not([data-tema=claro]) table.heat td:first-child{background:#0a2145}
-html:not([data-tema=claro]) .tw{border-radius:18px;overflow:auto}
+html[data-tema=escuro] table{border-collapse:separate;border-spacing:0;width:100%;color:var(--ink)}
+html[data-tema=escuro] th{background:rgba(255,255,255,.10)!important;color:#cfe6ff!important;font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:800;text-align:left;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.18);white-space:nowrap;position:sticky;top:0;z-index:2}
+html[data-tema=escuro] td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:middle;color:var(--ink)}
+html[data-tema=escuro] :is(th.n,td.n){text-align:right;font-variant-numeric:tabular-nums}
+html[data-tema=escuro] tbody tr:nth-child(even) td{background:rgba(255,255,255,.035)}
+html[data-tema=escuro] tbody tr:hover td{background:rgba(76,195,255,.12)}
+html[data-tema=escuro] tr.sel td{background:rgba(255,194,51,.22)!important}
+html[data-tema=escuro] table.heat td:first-child{background:#0a2145}
+html[data-tema=escuro] .tw{border-radius:18px;overflow:auto}
 /* botões, chips, abas, campos */
-html:not([data-tema=claro]) :is(button,.bt,.chip,.ghostbtn){background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.22)}
-html:not([data-tema=claro]) :is(button,.bt,.chip,.ghostbtn):hover{background:rgba(255,255,255,.16)}
-html:not([data-tema=claro]) :is(button.pri,.chip.on,.zfmt button.pri,button[aria-pressed=true]){background:#1d8fe0;border-color:#1d8fe0;color:#fff}
-html:not([data-tema=claro]) button.lk{background:rgba(76,195,255,.12);border-color:#4cc3ff;color:#bfe6ff}
-html:not([data-tema=claro]) .tabs{background:rgba(255,255,255,.08);box-shadow:none;border:1px solid rgba(255,255,255,.15)}
-html:not([data-tema=claro]) .tabs button{color:#cfe0f5;background:transparent;border-color:transparent}
-html:not([data-tema=claro]) .tabs button.on{background:#1d8fe0;color:#fff}
-html:not([data-tema=claro]) :is(input,select,textarea){background:rgba(255,255,255,.09);color:#fff;border:1.5px solid rgba(255,255,255,.22)}
-html:not([data-tema=claro]) :is(input,select,textarea)::placeholder{color:rgba(255,255,255,.5)}
-html:not([data-tema=claro]) option{background:#0a2145;color:#fff}
-html:not([data-tema=claro]) a{color:#6cc4ff}
-html:not([data-tema=claro]) .pill{background:rgba(255,255,255,.14);color:#fff}
-html:not([data-tema=claro]) .aviso{background:rgba(255,194,51,.14);border-color:rgba(255,194,51,.5);color:#ffe29a}
-html:not([data-tema=claro]) #splash{background:#061a3d;color:#fff}
+html[data-tema=escuro] :is(button,.bt,.chip,.ghostbtn){background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.22)}
+html[data-tema=escuro] :is(button,.bt,.chip,.ghostbtn):hover{background:rgba(255,255,255,.16)}
+html[data-tema=escuro] :is(button.pri,.chip.on,.zfmt button.pri,button[aria-pressed=true]){background:#1d8fe0;border-color:#1d8fe0;color:#fff}
+html[data-tema=escuro] button.lk{background:rgba(76,195,255,.12);border-color:#4cc3ff;color:#bfe6ff}
+html[data-tema=escuro] .tabs{background:rgba(255,255,255,.08);box-shadow:none;border:1px solid rgba(255,255,255,.15)}
+html[data-tema=escuro] .tabs button{color:#cfe0f5;background:transparent;border-color:transparent}
+html[data-tema=escuro] .tabs button.on{background:#1d8fe0;color:#fff}
+html[data-tema=escuro] :is(input,select,textarea){background:rgba(255,255,255,.09);color:#fff;border:1.5px solid rgba(255,255,255,.22)}
+html[data-tema=escuro] :is(input,select,textarea)::placeholder{color:rgba(255,255,255,.5)}
+html[data-tema=escuro] option{background:#0a2145;color:#fff}
+html[data-tema=escuro] a{color:#6cc4ff}
+html[data-tema=escuro] .pill{background:rgba(255,255,255,.14);color:#fff}
+html[data-tema=escuro] .aviso{background:rgba(255,194,51,.14);border-color:rgba(255,194,51,.5);color:#ffe29a}
+html[data-tema=escuro] #splash{background:#061a3d;color:#fff}
 /* mapas (Leaflet): popups e controles legíveis */
-html:not([data-tema=claro]) .leaflet-container{background:#0a2145}
-html:not([data-tema=claro]) :is(.leaflet-popup-content-wrapper,.leaflet-popup-tip){background:#0f2a57;color:#fff}
-html:not([data-tema=claro]) :is(.leaflet-bar a,.leaflet-control-layers){background:#0f2a57;color:#fff;border-color:rgba(255,255,255,.2)}
+html[data-tema=escuro] .leaflet-container{background:#0a2145}
+html[data-tema=escuro] :is(.leaflet-popup-content-wrapper,.leaflet-popup-tip){background:#0f2a57;color:#fff}
+html[data-tema=escuro] :is(.leaflet-bar a,.leaflet-control-layers){background:#0f2a57;color:#fff;border-color:rgba(255,255,255,.2)}
 /* impressão sempre clara (gasta menos tinta) */
 @media print{
-  html:not([data-tema=claro]){color-scheme:light}
-  html:not([data-tema=claro]) body{background:#fff!important;color:#0b1f3a}
-  html:not([data-tema=claro]) :is(.cx,.eqcard,.gcard,.tw,.kpi,.mini,.alt){background:#fff!important;border-color:#d5e2f1!important;color:#0b1f3a;box-shadow:none;backdrop-filter:none}
-  html:not([data-tema=claro]) :is(h1,h2,h3,h4,b,strong,.kpi b,td){color:#0a2145}
-  html:not([data-tema=claro]) th{background:#eef4fa!important;color:#0a2145!important;position:static}
-  html:not([data-tema=claro]) :is(p,small,.nota,.kpi span){color:#4b6381}
-  html:not([data-tema=claro]) tbody tr:nth-child(even) td{background:#f6f9fd}
+  html[data-tema=escuro]{color-scheme:light}
+  html[data-tema=escuro] body{background:#fff!important;color:#0b1f3a}
+  html[data-tema=escuro] :is(.cx,.eqcard,.gcard,.tw,.kpi,.mini,.alt){background:#fff!important;border-color:#d5e2f1!important;color:#0b1f3a;box-shadow:none;backdrop-filter:none}
+  html[data-tema=escuro] :is(h1,h2,h3,h4,b,strong,.kpi b,td){color:#0a2145}
+  html[data-tema=escuro] th{background:#eef4fa!important;color:#0a2145!important;position:static}
+  html[data-tema=escuro] :is(p,small,.nota,.kpi span){color:#4b6381}
+  html[data-tema=escuro] tbody tr:nth-child(even) td{background:#f6f9fd}
 }
 /* tabelas: linhas sem fundo claro herdado, colunas com largura confortável e alinhadas */
-html:not([data-tema=claro]) tbody tr:nth-child(even){background:transparent}
-html:not([data-tema=claro]) tbody tr{background:transparent}
-html:not([data-tema=claro]) .tw table{min-width:100%;width:max-content}
-html:not([data-tema=claro]) td{white-space:nowrap}
-html:not([data-tema=claro]) td:nth-child(2):not(.n){white-space:normal;min-width:200px}
-html:not([data-tema=claro]) .alts{grid-template-columns:1fr}
-html:not([data-tema=claro]) .alts table{font-size:13.5px}
-html:not([data-tema=claro]) td svg{display:block;max-width:none}
-html:not([data-tema=claro]) .cx>.tw,html:not([data-tema=claro]) .cx .tw{background:transparent!important;box-shadow:none;border:0;backdrop-filter:none}
+html[data-tema=escuro] tbody tr:nth-child(even){background:transparent}
+html[data-tema=escuro] tbody tr{background:transparent}
+html[data-tema=escuro] .tw table{min-width:100%;width:max-content}
+html[data-tema=escuro] td{white-space:nowrap}
+html[data-tema=escuro] td:nth-child(2):not(.n){white-space:normal;min-width:200px}
+html[data-tema=escuro] .alts{grid-template-columns:1fr}
+html[data-tema=escuro] .alts table{font-size:13.5px}
+html[data-tema=escuro] td svg{display:block;max-width:none}
+html[data-tema=escuro] .cx>.tw,html[data-tema=escuro] .cx .tw{background:transparent!important;box-shadow:none;border:0;backdrop-filter:none}
 /* gráficos SVG: textos e linhas de apoio claros sobre o fundo escuro */
-html:not([data-tema=claro]) svg text[fill="#002B68"],html:not([data-tema=claro]) svg text[fill="#002b68"]{fill:#ffffff}
-html:not([data-tema=claro]) svg text[fill="#5B7391"],html:not([data-tema=claro]) svg text[fill="#5b7391"]{fill:rgba(255,255,255,.66)}
-html:not([data-tema=claro]) svg [stroke="#E1EAF3"],html:not([data-tema=claro]) svg [stroke="#C5D6E8"]{stroke:rgba(255,255,255,.18)}
-html:not([data-tema=claro]) svg rect[fill="#007ECA"]{fill:#2a9df4}
-html:not([data-tema=claro]) svg circle[stroke="#fff"]{stroke:#0a2145}
-html:not([data-tema=claro]) svg text[fill="#002868"]{fill:#fff}
-html:not([data-tema=claro]) svg polyline[stroke="#002868"]{stroke:#4cc3ff}
-html:not([data-tema=claro]) svg circle[fill="#002868"]{fill:#4cc3ff}
-html:not([data-tema=claro]) svg rect[fill="#002B68"]{fill:#8fd0ff}
-html:not([data-tema=claro]) svg text[fill="#E0182D"]{fill:#ff8f9d}
-html:not([data-tema=claro]) svg text[fill="#00A651"]{fill:#3ddc84}
-html:not([data-tema=claro]) .sobe{color:#ff8f9d}
-html:not([data-tema=claro]) .desce{color:#3ddc84}
-html:not([data-tema=claro]) :is(textarea,input:not([type=checkbox]):not([type=radio]),select){background:rgba(255,255,255,.09)!important;color:#fff!important}
-html:not([data-tema=claro]) .sec>summary,html:not([data-tema=claro]) .sec>summary span,html:not([data-tema=claro]) .sec>summary b{color:#fff!important}
-html:not([data-tema=claro]) .sec>summary{background:transparent}
+html[data-tema=escuro] svg text[fill="#002B68"],html[data-tema=escuro] svg text[fill="#002b68"]{fill:#ffffff}
+html[data-tema=escuro] svg text[fill="#5B7391"],html[data-tema=escuro] svg text[fill="#5b7391"]{fill:rgba(255,255,255,.66)}
+html[data-tema=escuro] svg [stroke="#E1EAF3"],html[data-tema=escuro] svg [stroke="#C5D6E8"]{stroke:rgba(255,255,255,.18)}
+html[data-tema=escuro] svg rect[fill="#007ECA"]{fill:#2a9df4}
+html[data-tema=escuro] svg circle[stroke="#fff"]{stroke:#0a2145}
+html[data-tema=escuro] svg text[fill="#002868"]{fill:#fff}
+html[data-tema=escuro] svg polyline[stroke="#002868"]{stroke:#4cc3ff}
+html[data-tema=escuro] svg circle[fill="#002868"]{fill:#4cc3ff}
+html[data-tema=escuro] svg rect[fill="#002B68"]{fill:#8fd0ff}
+html[data-tema=escuro] svg text[fill="#E0182D"]{fill:#ff8f9d}
+html[data-tema=escuro] svg text[fill="#00A651"]{fill:#3ddc84}
+html[data-tema=escuro] .sobe{color:#ff8f9d}
+html[data-tema=escuro] .desce{color:#3ddc84}
+html[data-tema=escuro] :is(textarea,input:not([type=checkbox]):not([type=radio]),select){background:rgba(255,255,255,.09)!important;color:#fff!important}
+html[data-tema=escuro] .sec>summary,html[data-tema=escuro] .sec>summary span,html[data-tema=escuro] .sec>summary b{color:#fff!important}
+html[data-tema=escuro] .sec>summary{background:transparent}

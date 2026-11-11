@@ -39,4 +39,4 @@ Duas páginas: `index.html` (mapa de campo) e `gestao.html` (painel da gestão, 
 Abra só o arquivo da tabela acima; use `grep -n "palavra" assets/js/...` em vez de ler arquivos inteiros. Não precisa ler `assets/vendor/` (bibliotecas) nem `data/*.json`.
 
 ## Tema
-`assets/css/tema-escuro.css` = visual escuro premium (padrão) nas duas páginas; só sobrescreve cores. Botão "Tema claro/escuro" em cada página (chave `ovTema` no navegador). Para mudar cores do escuro, editar só esse arquivo. Gráficos SVG usam atributos fill/stroke fixos nos JS: ajustes de cor no escuro ficam no fim do tema-escuro.css.
+`assets/css/tema-escuro.css` = visual escuro premium (opcional; o padrão é claro) nas duas páginas; só sobrescreve cores. Botão "Tema escuro/claro" em cada página (chave `ovTema` no navegador). Para mudar cores do escuro, editar só esse arquivo. Gráficos SVG usam atributos fill/stroke fixos nos JS: ajustes de cor no escuro ficam no fim do tema-escuro.css.
