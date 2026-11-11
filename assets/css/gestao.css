@@ -15,7 +15,7 @@ h1,h2,h3{margin:0}
 button,.bt{font:inherit;font-weight:800;font-size:13.5px;border:2px solid var(--line);background:#fff;color:var(--navy);padding:9px 14px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-block}
 button:hover,.bt:hover{background:#eaf3fb}
 button.pri{background:var(--navy);border-color:var(--navy);color:#fff}
-main{max-width:1240px;margin:0 auto;padding:18px 16px 40px}
+main{max-width:none;margin:0 auto;padding:18px var(--gut) 40px}
 section{margin-top:22px}
 h2{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:10px}
 h2::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,var(--blue) 0 60px,var(--yellow) 60px 90px,var(--line) 90px)}
@@ -262,7 +262,7 @@ h2 .btprn,h3 .btprn{text-transform:none}
 .filtros.eq-esc #chips,.filtros.eq-esc>b{display:none}
 .filtros{display:flex;align-items:center}
 /* tudo alinhado com o cabeçalho: mesma largura e mesma margem lateral */
-.top{padding-left:max(22px,calc((100% - 1240px)/2 + 16px));padding-right:max(22px,calc((100% - 1240px)/2 + 16px))}
+.top{padding-left:calc(var(--gut) + 0px);padding-right:var(--gut)}
 @media print{.top{padding-left:16px;padding-right:16px}}
 
 /* mapa de calor transparente: o nome das ruas continua legível por baixo */
@@ -311,3 +311,12 @@ html[data-tema=claro] .top .anosel,html[data-tema=claro] .top label{color:#0a214
 }
 @media print{ .alts .cx,.cx.alt,.cx:has(table){break-inside:auto!important} .alts{display:block!important} .alts .cx{margin-bottom:10px} thead{display:table-header-group} }
 .zfmt{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}.zfmt button{padding:8px 12px;border-radius:999px;border:2px solid var(--line);background:#fff;font-weight:800}.zfmt button.pri{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* ocupa toda a largura da tela e se ajusta à resolução */
+:root{--gut:clamp(12px,2.4vw,56px)}
+.alts{grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr))}
+.hk{grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr))}
+.duas,.zapgrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr))}
+#mapa,#mapaM{height:clamp(320px,56vh,820px)}
+@media (min-width:1700px){html{font-size:17px}}
+@media (min-width:2200px){html{font-size:19px}}

@@ -69,7 +69,6 @@ html[data-tema=escuro] tbody tr{background:transparent}
 html[data-tema=escuro] .tw table{min-width:100%;width:max-content}
 html[data-tema=escuro] td{white-space:nowrap}
 html[data-tema=escuro] td:nth-child(2):not(.n){white-space:normal;min-width:200px}
-html[data-tema=escuro] .alts{grid-template-columns:1fr}
 html[data-tema=escuro] .alts table{font-size:13.5px}
 html[data-tema=escuro] td svg{display:block;max-width:none}
 html[data-tema=escuro] .cx>.tw,html[data-tema=escuro] .cx .tw{background:transparent!important;box-shadow:none;border:0;backdrop-filter:none}
