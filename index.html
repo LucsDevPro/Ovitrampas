@@ -8,10 +8,12 @@
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" href="assets/fonts/bricolage-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/unbounded-900.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/tokens.css?v=28d5b64e">
-<link rel="stylesheet" href="assets/css/base.css?v=28d5b64e">
-<link rel="stylesheet" href="assets/vendor/leaflet.css?v=28d5b64e">
-<link rel="stylesheet" href="assets/css/app.css?v=28d5b64e">
+<link rel="stylesheet" href="assets/css/tokens.css?v=38268ca3">
+<link rel="stylesheet" href="assets/css/base.css?v=38268ca3">
+<link rel="stylesheet" href="assets/vendor/leaflet.css?v=38268ca3">
+<link rel="stylesheet" href="assets/css/app.css?v=38268ca3">
+<link rel="stylesheet" href="assets/css/tema-escuro.css?v=0">
+<script>try{if(localStorage.getItem("ovTema")==="claro")document.documentElement.setAttribute("data-tema","claro")}catch(e){}</script>
 </head>
 <body data-pagina="app">
 <div id="splash" role="status"><div data-splash-txt>Carregando dados…</div></div>
@@ -20,10 +22,11 @@
   <aside id="side" aria-label="Controles do mapa">
     <header class="sidehead">
       <div class="brand">
-        <img class="brand-logo" src="assets/img/logo-2x.png?v=28d5b64e" alt="Prefeitura Municipal de Ponta Porã" width="121" height="46">
+        <img class="brand-logo" src="assets/img/logo-2x.png?v=38268ca3" alt="Prefeitura Municipal de Ponta Porã" width="121" height="46">
         <div class="brand-txt"><h1>Mapa de campo</h1><p>Controle de ovitrampas<br>SEV - Setor de endemias e vetores</p></div>
       </div>
       <button id="closeMenu" class="btn btn-sm primary" type="button"><i data-ico="map"></i>Ver mapa</button>
+      <button id="btnTema" class="btn btn-sm" type="button" aria-pressed="false">Tema claro</button>
       <button id="hideMenu" class="btn btn-sm" type="button" title="Esconder o menu para ver o mapa maior"><i data-ico="panel"></i>Esconder</button>
     </header>
 
@@ -388,8 +391,8 @@
 
 
 
-<script src="assets/vendor/leaflet.js?v=28d5b64e"></script>
-<script src="assets/js/ui.js?v=28d5b64e"></script>
-<script src="assets/js/boot.js?v=28d5b64e"></script>
+<script src="assets/vendor/leaflet.js?v=38268ca3"></script>
+<script src="assets/js/ui.js?v=38268ca3"></script>
+<script src="assets/js/boot.js?v=38268ca3"></script>
 </body>
 </html>

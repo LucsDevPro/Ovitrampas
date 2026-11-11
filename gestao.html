@@ -8,14 +8,16 @@
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" href="assets/fonts/bricolage-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/unbounded-900.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/tokens.css?v=28d5b64e">
-<link rel="stylesheet" href="assets/vendor/leaflet.css?v=28d5b64e">
-<link rel="stylesheet" href="assets/css/gestao.css?v=28d5b64e">
+<link rel="stylesheet" href="assets/css/tokens.css?v=38268ca3">
+<link rel="stylesheet" href="assets/vendor/leaflet.css?v=38268ca3">
+<link rel="stylesheet" href="assets/css/gestao.css?v=38268ca3">
+<link rel="stylesheet" href="assets/css/tema-escuro.css?v=0">
+<script>try{if(localStorage.getItem("ovTema")==="claro")document.documentElement.setAttribute("data-tema","claro")}catch(e){}</script>
 </head>
 <body data-pagina="gestao">
 <div id="splash" role="status"><div data-splash-txt>Carregando dados…</div></div>
 <header class="top">
-  <div class="brand"><img alt="Prefeitura Municipal de Ponta Porã" src="assets/img/logo-2x.png?v=28d5b64e" width="158" height="60"><div><h1>Painel de gestão — ovitrampas</h1><p>SEV - Setor de endemias e vetores · Ponta Porã/MS</p></div></div>
+  <div class="brand"><img alt="Prefeitura Municipal de Ponta Porã" src="assets/img/logo-2x.png?v=38268ca3" width="158" height="60"><div><h1>Painel de gestão — ovitrampas</h1><p>SEV - Setor de endemias e vetores · Ponta Porã/MS</p></div></div>
   <div class="kpis hk" id="kpis" aria-label="Indicadores gerais"></div>
   <div class="acoes noprint"><span id="atual"></span><button id="btnImp" class="pri" type="button">Imprimir / PDF desta aba</button><button id="btnImpTudo" type="button">Imprimir tudo</button><button id="btnTema" type="button" aria-pressed="false">Tema claro</button><label class="anosel" for="selAno">Ano <select id="selAno" aria-label="Ano dos resultados"></select></label><button id="btnRec" type="button">Atualizar</button><a class="bt" id="linkApp" href="index.html">Mapa de campo</a></div>
   <div class="faixa"><i style="width:38%;background:var(--navy)"></i><i style="width:30%;background:var(--blue)"></i><i style="width:14%;background:var(--green)"></i><i style="width:11%;background:var(--yellow)"></i><i style="width:7%;background:var(--red)"></i></div>
@@ -46,15 +48,15 @@
 
 
 
-<script src="assets/vendor/leaflet.js?v=28d5b64e"></script>
-<script src="assets/vendor/leaflet-heat.js?v=28d5b64e"></script>
-<script src="assets/js/boot.js?v=28d5b64e"></script>
-<script src="assets/js/gestao/01-base.js?v=28d5b64e"></script>
-<script src="assets/js/gestao/02-anual-focos.js?v=28d5b64e"></script>
-<script src="assets/js/gestao/03-alertas-hist.js?v=28d5b64e"></script>
-<script src="assets/js/gestao/04-imprimir.js?v=28d5b64e"></script>
-<script src="assets/js/gestao/05-whatsapp.js?v=28d5b64e"></script>
+<script src="assets/vendor/leaflet.js?v=38268ca3"></script>
+<script src="assets/vendor/leaflet-heat.js?v=38268ca3"></script>
+<script src="assets/js/boot.js?v=38268ca3"></script>
+<script src="assets/js/gestao/01-base.js?v=38268ca3"></script>
+<script src="assets/js/gestao/02-anual-focos.js?v=38268ca3"></script>
+<script src="assets/js/gestao/03-alertas-hist.js?v=38268ca3"></script>
+<script src="assets/js/gestao/04-imprimir.js?v=38268ca3"></script>
+<script src="assets/js/gestao/05-whatsapp.js?v=38268ca3"></script>
 <script src="assets/js/gestao/05b-zap-imagem.js?v=0"></script>
-<script src="assets/js/gestao/06-extras.js?v=28d5b64e"></script>
+<script src="assets/js/gestao/06-extras.js?v=38268ca3"></script>
 </body>
 </html>
