@@ -310,3 +310,4 @@ html[data-tema=claro] .top .anosel,html[data-tema=claro] .top label{color:#0a214
 .top{padding:6px 0 8px!important;break-after:avoid;box-shadow:none!important}.hk{gap:6px!important}.hk .kpi{padding:6px 8px!important}.hk .kpi span{font-size:8.5px!important}.top::before{display:none}
 }
 @media print{ .alts .cx,.cx.alt,.cx:has(table){break-inside:auto!important} .alts{display:block!important} .alts .cx{margin-bottom:10px} thead{display:table-header-group} }
+.zfmt{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}.zfmt button{padding:8px 12px;border-radius:999px;border:2px solid var(--line);background:#fff;font-weight:800}.zfmt button.pri{background:var(--navy);color:#fff;border-color:var(--navy)}
