@@ -89,3 +89,41 @@ html[data-tema=escuro] .desce{color:#3ddc84}
 html[data-tema=escuro] :is(textarea,input:not([type=checkbox]):not([type=radio]),select){background:rgba(255,255,255,.09)!important;color:#fff!important}
 html[data-tema=escuro] .sec>summary,html[data-tema=escuro] .sec>summary span,html[data-tema=escuro] .sec>summary b{color:#fff!important}
 html[data-tema=escuro] .sec>summary{background:transparent}
+
+/* ===== menu lateral escuro: camadas SÓLIDAS (sem transparência) para dar profundidade e legibilidade ===== */
+html[data-tema=escuro] #side{background:#071a3d!important;border-right:1px solid rgba(255,255,255,.1)}
+html[data-tema=escuro] .sidehead{background:#04122f!important;box-shadow:0 1px 0 rgba(255,255,255,.12)}
+html[data-tema=escuro] .brand-txt{border-left-color:rgba(255,255,255,.25)}
+html[data-tema=escuro] .brand-txt h1{color:#fff}
+html[data-tema=escuro] .brand-txt p{color:#8fd0ff}
+html[data-tema=escuro] details.sec{background:#0d2656!important;border-color:rgba(255,255,255,.12)!important;box-shadow:0 6px 18px rgba(0,8,30,.4);backdrop-filter:none}
+html[data-tema=escuro] details.sec.destaque{background:linear-gradient(135deg,#0b3a7a,#0d2656 70%)!important}
+html[data-tema=escuro] details.sec>summary{background:transparent!important}
+html[data-tema=escuro] .secbody,html[data-tema=escuro] details.sec.destaque .secbody{background:#0a2149!important;border-radius:0 0 var(--r-lg) var(--r-lg)}
+html[data-tema=escuro] details.sec[open]>summary{border-bottom-color:rgba(255,255,255,.12)}
+html[data-tema=escuro] details.sec>summary .i{background:rgba(76,195,255,.18);color:#8fd0ff}
+html[data-tema=escuro] details.sec[open]>summary .i{background:#1d8fe0;color:#fff}
+html[data-tema=escuro] details.sec>summary::after{border-color:#cfe6ff}
+html[data-tema=escuro] details.subd{background:#0d2656!important;border-color:rgba(255,255,255,.14)!important}
+html[data-tema=escuro] button.ag{background:#12306a!important;border-color:rgba(255,255,255,.16)!important;color:#fff}
+html[data-tema=escuro] button.ag:hover{background:#18407f!important}
+html[data-tema=escuro] #side :is(.btn,button:not(.qbtn)):not(.primary){background:#12306a!important;color:#fff;border-color:rgba(255,255,255,.22)}
+html[data-tema=escuro] #side :is(.btn.primary,.primary){background:#1d8fe0!important;border-color:#1d8fe0!important;color:#fff}
+html[data-tema=escuro] #side :is(input,select,textarea){background:#071a3d!important;border-color:rgba(255,255,255,.25)!important}
+html[data-tema=escuro] #side .kpis>*,html[data-tema=escuro] #side .kpi{background:#12306a!important}
+html[data-tema=escuro] .bar{background:rgba(255,255,255,.15)}
+html[data-tema=escuro] #side .chip{background:#12306a!important}
+html[data-tema=escuro] #side .chip.on{background:#1d8fe0!important}
+html[data-tema=escuro] #menuBtn,html[data-tema=escuro] #side~* .btn{background:#1d8fe0;color:#fff}
+/* subtítulo de cada seção */
+details.sec>summary{flex-wrap:wrap;row-gap:0}
+details.sec>summary .sub{flex:1 1 100%;order:5;margin:-8px 0 8px calc(34px + var(--s3));font-size:.74rem;font-weight:600;color:var(--mute);font-family:var(--font);line-height:1.3}
+details.sec>summary{padding-top:8px;padding-bottom:2px}
+html[data-tema=escuro] details.sec>summary .sub{color:#a9c4e4}
+details.sec.destaque>summary .sub{color:#bcd3ef}
+html[data-tema=escuro] #side{color:#e8f1ff}
+html[data-tema=escuro] #side :is(label,.ag,.ag *,p,small,div,span,li,td,th,summary){color:#e8f1ff}
+html[data-tema=escuro] #side :is(.hint,.nota,.count,.muted,p.hint,small,.ag small,.ag span:not(.eq)){color:#a9c4e4}
+html[data-tema=escuro] #side :is(.chip,.eq,.badge,.tag){color:#fff}
+html[data-tema=escuro] #side :is(h2,h3,h4,.lbl,.sec-t,legend){color:#cfe6ff}
+html[data-tema=escuro] #side .ag b{color:#fff}

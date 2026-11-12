@@ -12,3 +12,6 @@ document.querySelectorAll('details.sec').forEach(s=>{ const sm=s.querySelector('
 { const b=$('btnTema'), r=document.documentElement; let esc=false; try{ esc=localStorage.getItem('ovTema')==='escuro'; }catch(e){}
   const ap=()=>{ r.setAttribute('data-tema',esc?'escuro':'claro'); if(b){ b.textContent=esc?'Tema claro':'Tema escuro'; b.setAttribute('aria-pressed',String(esc)); } };
   if(b) b.onclick=()=>{ esc=!esc; try{ localStorage.setItem('ovTema',esc?'escuro':'claro'); }catch(e){} ap(); }; ap(); }
+
+/* menu: abrir uma seção fecha as outras (menos poluído, mais fácil de entender) */
+document.querySelectorAll('#side>details.sec').forEach(d=>d.addEventListener('toggle',()=>{ if(!d.open) return; document.querySelectorAll('#side>details.sec[open]').forEach(o=>{ if(o!==d) o.open=false; }); try{ d.scrollIntoView({block:'nearest',behavior:'smooth'}); }catch(e){} }));

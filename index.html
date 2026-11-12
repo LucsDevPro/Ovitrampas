@@ -8,10 +8,10 @@
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" href="assets/fonts/bricolage-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/unbounded-900.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/tokens.css?v=239fd69b">
-<link rel="stylesheet" href="assets/css/base.css?v=239fd69b">
-<link rel="stylesheet" href="assets/vendor/leaflet.css?v=239fd69b">
-<link rel="stylesheet" href="assets/css/app.css?v=239fd69b">
+<link rel="stylesheet" href="assets/css/tokens.css?v=fcddf236">
+<link rel="stylesheet" href="assets/css/base.css?v=fcddf236">
+<link rel="stylesheet" href="assets/vendor/leaflet.css?v=fcddf236">
+<link rel="stylesheet" href="assets/css/app.css?v=fcddf236">
 <link rel="stylesheet" href="assets/css/tema-escuro.css?v=0">
 <script>var m="claro";try{if(localStorage.getItem("ovTema")==="escuro")m="escuro"}catch(e){}document.documentElement.setAttribute("data-tema",m)</script>
 </head>
@@ -22,7 +22,7 @@
   <aside id="side" aria-label="Controles do mapa">
     <header class="sidehead">
       <div class="brand">
-        <img class="brand-logo" src="assets/img/logo-2x.png?v=239fd69b" alt="Prefeitura Municipal de Ponta Porã" width="121" height="46">
+        <img class="brand-logo" src="assets/img/logo-2x.png?v=fcddf236" alt="Prefeitura Municipal de Ponta Porã" width="121" height="46">
         <div class="brand-txt"><h1>Mapa de campo</h1><p>Controle de ovitrampas<br>SEV - Setor de endemias e vetores</p></div>
       </div>
       <button id="closeMenu" class="btn btn-sm primary" type="button"><i data-ico="map"></i>Ver mapa</button>
@@ -31,7 +31,7 @@
     </header>
 
     <details class="sec destaque" open>
-      <summary><i data-ico="chart"></i><span id="indTit">Indicadores</span></summary>
+      <summary><i data-ico="chart"></i><span id="indTit">Indicadores</span><small class="sub">Números do mês e relatórios para imprimir</small></summary>
       <div class="secbody">
       <div id="kpiResumo" class="kpis"></div>
       <div class="row">
@@ -43,8 +43,8 @@
       </div>
     </details>
 
-    <details class="sec" open>
-      <summary><i data-ico="users"></i><span>Agentes e equipes</span></summary>
+    <details class="sec">
+      <summary><i data-ico="users"></i><span>Agentes e equipes</span><small class="sub">Escolha um agente e gere o mapa de campo dele</small></summary>
       <div class="secbody">
       <input id="agBusca" type="search" placeholder="Buscar agente, área ou nº…" aria-label="Buscar agente" autocomplete="off">
       <label for="agOrd" class="field-label">Organizar por</label>
@@ -76,7 +76,7 @@
     </details>
 
     <details class="sec">
-      <summary><i data-ico="search"></i><span>Buscar e selecionar</span></summary>
+      <summary><i data-ico="search"></i><span>Buscar e selecionar</span><small class="sub">Escolha ovitrampas avulsas e gere um mapa</small></summary>
       <div class="secbody">
       <div class="search">
         <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Pesquisar nº, rua ou endereço" aria-label="Pesquisar ovitrampa">
@@ -111,7 +111,7 @@
     </details>
 
     <details class="sec">
-      <summary><i data-ico="layers"></i><span>Camadas do mapa</span></summary>
+      <summary><i data-ico="layers"></i><span>Camadas do mapa</span><small class="sub">O que aparece no mapa: grid, cores, ovos</small></summary>
       <div class="secbody">
       <div class="subsec first">
         <h3>Grid de quadrículas</h3>
@@ -172,7 +172,7 @@
     
 
     <details class="sec">
-      <summary><i data-ico="printer"></i><span>Print e arquivos</span></summary>
+      <summary><i data-ico="printer"></i><span>Print e arquivos</span><small class="sub">Imprimir o mapa, KML e arquivos</small></summary>
       <div class="secbody">
       <label for="fundo" class="field-label">Mapa de fundo do print</label>
       <select id="fundo" aria-label="Mapa de fundo do print">
@@ -211,7 +211,7 @@
     </details>
 
     <details class="sec">
-      <summary><i data-ico="database"></i><span>Dados e conferência</span></summary>
+      <summary><i data-ico="database"></i><span>Dados e conferência</span><small class="sub">Atualizar dados e conferir coordenadas</small></summary>
       <div class="secbody">
       <p class="hint" id="dadosInfo"></p>
       <div class="row">
@@ -391,8 +391,8 @@
 
 
 
-<script src="assets/vendor/leaflet.js?v=239fd69b"></script>
-<script src="assets/js/ui.js?v=239fd69b"></script>
-<script src="assets/js/boot.js?v=239fd69b"></script>
+<script src="assets/vendor/leaflet.js?v=fcddf236"></script>
+<script src="assets/js/ui.js?v=fcddf236"></script>
+<script src="assets/js/boot.js?v=fcddf236"></script>
 </body>
 </html>
