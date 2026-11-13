@@ -320,3 +320,17 @@ html[data-tema=claro] .top .anosel,html[data-tema=claro] .top label{color:#0a214
 #mapa,#mapaM{height:clamp(320px,56vh,820px)}
 @media (min-width:1700px){html{font-size:17px}}
 @media (min-width:2200px){html{font-size:19px}}
+
+/* tabelas usam toda a largura disponível, com letras e espaçamento maiores */
+.alts{grid-template-columns:1fr!important}
+.duas,.duas2,.duas3,.zapgrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,680px),1fr))!important}
+.tw{width:100%}
+.tw table,table{width:100%;font-size:clamp(14px,.5vw + 9px,18px)}
+th{font-size:clamp(12.5px,.35vw + 8px,15px);padding:12px 14px}
+td{padding:11px 14px}
+td:nth-child(2):not(.n){min-width:240px}
+table.heat{font-size:clamp(12.5px,.35vw + 8px,15px)}
+table.heat td.n{min-width:clamp(46px,3vw,64px)}
+td svg{max-width:100%}
+.cx>svg[viewBox],.cx svg[role=img]{max-height:clamp(240px,44vh,500px)}
+.bandbars{max-width:min(100%,1000px)}
