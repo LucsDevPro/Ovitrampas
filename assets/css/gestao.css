@@ -334,3 +334,12 @@ table.heat td.n{min-width:clamp(46px,3vw,64px)}
 td svg{max-width:100%}
 .cx>svg[viewBox],.cx svg[role=img]{max-height:clamp(240px,44vh,500px)}
 .bandbars{max-width:min(100%,1000px)}
+/* alertas: as três tabelas têm as mesmas colunas, com larguras idênticas (alinhadas entre si) */
+.alts table{table-layout:fixed;width:100%}
+.alts th:nth-child(1),.alts td:nth-child(1){width:13%}
+.alts th:nth-child(2),.alts td:nth-child(2){width:33%;min-width:0!important;white-space:normal}
+.alts th:nth-child(3),.alts td:nth-child(3){width:20%}
+.alts th:nth-child(4),.alts td:nth-child(4),.alts th:nth-child(5),.alts td:nth-child(5){width:9%}
+.alts th:nth-child(6),.alts td:nth-child(6){width:16%}
+.alts td{overflow:hidden;text-overflow:ellipsis}
+.alts td svg{width:100%;max-width:150px}
